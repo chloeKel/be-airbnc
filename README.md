@@ -1,11 +1,14 @@
 # AirBNC
 
-Draft
+Built with Node v23.3.0
 
-Node v23.3.0
-Dependencies - express, jest, supertest, node-postgres
+# Dependencies
+
+Express, Jest, Supertest, node-postgres
 Run npm i to install relevant packages
 
-Local set up - <instructions here>
-Scripts - <scripts here>
+# Scripts
+
+Setup DB - npm run setup-db
+
 You will need .env.test and .env.development files
