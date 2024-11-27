@@ -4,7 +4,7 @@ Built with Node v23.3.0
 
 # Dependencies
 
-Express, Jest, Supertest, node-postgres
+Express, Jest, Supertest, node-postgres, dotenv
 Run npm i to install relevant packages
 
 # Scripts
