@@ -1,0 +1,17 @@
+{
+  "name": "be-airbnc",
+  "version": "1.0.0",
+  "description": "Draft",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "setup-db": "psql -f ./test-db/setup-db.sql"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
