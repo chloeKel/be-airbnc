@@ -6,12 +6,11 @@ const path = `${__dirname}/../.env.test`;
 
 require("dotenv").config({ path });
 
-console.log(process.env.PGDATABASE);
-
 if (!process.env.PGDATABASE) {
   throw new Error("PGDATABASE not set");
 }
 
 const db = new Pool();
 
+console.log("connected to:", process.env.PGDATABASE);
 module.exports = db;
