@@ -1,5 +1,5 @@
-const db = require("../connection");
-const { createRef } = require("../db-utils");
+const db = require("./connection");
+const { createRef } = require("./db-utils");
 const { dropTables, tables, insertPropertyTypes, insertUsers, usersKey, insertProperties, propertiesKey, insertFavourites, insertReviews } = require("./manage-queries");
 
 const seed = async () => {
@@ -24,3 +24,5 @@ const seed = async () => {
 };
 
 seed();
+
+module.exports = seed;

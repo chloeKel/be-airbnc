@@ -1,7 +1,7 @@
-const db = require("../connection");
+const db = require("./connection");
 const format = require("pg-format");
-const { formatData, mapData } = require("../db-utils");
-const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData } = require("../data/test/index");
+const { formatData, mapData } = require("./db-utils");
+const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData } = require("./data/test/index");
 
 const dropTables = `DROP TABLE IF EXISTS
     property_types, users, properties, favourites, reviews CASCADE`;
