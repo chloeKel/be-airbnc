@@ -1,6 +1,6 @@
 ## AirBNC
 
-An application designed to connect hosts and guests for renting homes.
+An application designed to connect hosts and guests for renting homes 🤝️
 
 ### Features
 
