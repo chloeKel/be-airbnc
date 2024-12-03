@@ -1,3 +1,6 @@
-exports.properties = "SELECT property_id, name, location, price_per_night, host_id FROM properties;";
-exports.favourites = "SELECT property_id, COUNT(favourite_id) AS favourite_count FROM favourites GROUP BY property_id;";
-exports.allUsers = "SELECT * FROM users;";
+exports.selectProperties = `SELECT properties.property_id, properties.name AS property_name, properties.location, properties.location, properties.price_per_night, CONCAT(users.first_name, ' ', users.surname) AS host, COALESCE(COUNT(favourites.favourite_id), 0) AS favourite_count
+FROM properties
+LEFT JOIN favourites on properties.property_id = favourites.property_id
+LEFT JOIN users ON properties.host_id = users.user_id
+GROUP BY properties.property_id, users.first_name, users.surname
+ORDER BY favourite_count DESC;`;

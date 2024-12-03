@@ -13,7 +13,7 @@ afterAll(async () => {
   await db.end();
 });
 
-describe("GET /api/properties", () => {
+describe("GET /api/properties HAPPY PATH", () => {
   test("should respond with a server status of 200", async () => {
     const response = await request(app).get("/api/properties");
     expect(response.status).toBe(200);
@@ -50,5 +50,25 @@ describe("GET /api/properties", () => {
     });
   });
 
-  test("Properties should come back ordered by most favourited to least by default", () => {});
+  test("should have favourite_count property, with the value of the number of times the property has been favourited, joined from favourites table", async () => {
+    const { body } = await request(app).get("/api/properties");
+    body.properties.forEach((item) => {
+      expect(item).toHaveProperty("favourite_count");
+    });
+  });
+
+  test("Properties should come back ordered by most favourited to least by default", async () => {
+    const { body } = await request(app).get("/api/properties");
+    expect(body.properties).toBeSortedBy("favourite_count", {
+      descending: true,
+    });
+  });
+});
+
+describe("GET api/properties SAD PATH", () => {
+  test("404 - path not found", async () => {
+    const response = await request(app).get("/api/priperties");
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("Path not found");
+  });
 });
