@@ -1,10 +1,14 @@
 const db = require("./connection");
 const format = require("pg-format");
-const { formatData, mapData } = require("./db-utils");
+const { formatData, mapData } = require("../utils");
 const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData } = require("./data/test/index");
 
+// const dropTables = `DROP TABLE IF EXISTS
+//     property_types, users, properties, favourites, reviews CASCADE`;
+
 const dropTables = `DROP TABLE IF EXISTS
-    property_types, users, properties, favourites, reviews CASCADE`;
+    reviews, favourites, properties, users, property_types CASCADE;
+`;
 
 const create = {
   propertyTypes: `CREATE TABLE property_types (
@@ -45,8 +49,6 @@ const create = {
    );`,
 };
 
-const tables = [create.propertyTypes, create.users, create.properties, create.favourites, create.reviews];
-
 const insertPropertyTypes = format("INSERT INTO property_types (property_type, description) VALUES %L RETURNING *;", formatData(propertyTypesData));
 
 const insertUsers = format("INSERT INTO users (first_name, surname, email, phone_number, role, avatar) VALUES %L RETURNING *;", formatData(usersData));
@@ -64,8 +66,8 @@ const propertiesKey = (prop) => prop.name;
 
 const insertFavourites = async (usersRef, propsRef) => {
   const queryString = "INSERT INTO favourites (guest_id, property_id) VALUES %L RETURNING *";
-  const WithGuestId = mapData(favouritesData, usersRef, "guest_id", "guest_name");
-  const withGuestAndPropId = mapData(WithGuestId, propsRef, "property_id", "property_name");
+  const withGuestId = mapData(favouritesData, usersRef, "guest_id", "guest_name");
+  const withGuestAndPropId = mapData(withGuestId, propsRef, "property_id", "property_name");
   const values = formatData(withGuestAndPropId);
   return db.query(format(queryString, values));
 };
@@ -78,4 +80,4 @@ const insertReviews = async (usersRef, propsRef) => {
   return db.query(format(queryString, values));
 };
 
-module.exports = { dropTables, tables, insertPropertyTypes, insertUsers, usersKey, insertProperties, propertiesKey, insertFavourites, insertReviews };
+module.exports = { dropTables, create, insertPropertyTypes, insertUsers, usersKey, insertProperties, propertiesKey, insertFavourites, insertReviews };

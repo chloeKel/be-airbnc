@@ -1,4 +1,4 @@
-const { formatData, createRef, mapData } = require("../db/db-utils");
+const { formatData, createRef, mapData } = require("../utils");
 const index = require("../db/data/test/index");
 
 describe("formatData", () => {
