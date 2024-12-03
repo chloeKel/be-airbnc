@@ -20,3 +20,5 @@ exports.mapData = (data, refObj, key, value) => {
     return mappedData;
   });
 };
+
+const validateColumns = () => {};

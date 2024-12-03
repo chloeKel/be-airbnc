@@ -16,7 +16,7 @@ Built with Node v23.3.0
 
 ### Dependencies
 
-Node.js, Express, PostgreSQL, Jest, Jest Sorted, Supertest, dotenv
+Node.js, Express.js, PostgreSQL, Jest, jest-extended, jest-sorted, Supertest, dotenv
 
 Run `npm i` to install relevant packages
 
