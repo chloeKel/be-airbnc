@@ -3,12 +3,8 @@ const format = require("pg-format");
 const { formatData, mapData } = require("../utils");
 const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData } = require("./data/test/index");
 
-// const dropTables = `DROP TABLE IF EXISTS
-//     property_types, users, properties, favourites, reviews CASCADE`;
-
 const dropTables = `DROP TABLE IF EXISTS
-    reviews, favourites, properties, users, property_types CASCADE;
-`;
+    reviews, favourites, properties, users, property_types CASCADE;`;
 
 const create = {
   propertyTypes: `CREATE TABLE property_types (

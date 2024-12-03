@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "setup-db": "psql -f ./db/setup-db.sql",
-    "seed": "node ./db/seed.js",
+    "seed": "node ./db/run-seed.js",
     "prepare": "husky"
   },
   "keywords": [],
