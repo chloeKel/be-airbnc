@@ -4,25 +4,23 @@ An application designed to connect hosts and guests for renting homes.
 
 ### Features
 
-Users can search and book listings through the platform.
+Search and book listings through the platform 🏡️
 
-Advanced search and filter options for users.
+Advanced search and filter options 🔎️
 
-Listing and booking management.
+Listing and booking management and access to booking history 📝️
 
-Access to booking history.
-
-Easy rate and review options.
+Easy rate and review options ⭐️⭐️⭐️⭐️⭐️
 
 Built with Node v23.3.0
 
-## Dependencies
+### Dependencies
 
 Node.js, Express, PostgreSQL, Jest, Jest Sorted, Supertest, dotenv
 
 Run `npm i` to install relevant packages
 
-## Scripts
+### Scripts
 
 Setup DB - `npm run setup-db`
 
