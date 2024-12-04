@@ -1,5 +1,5 @@
-const { formatData, createRef, mapData } = require("../utils");
-const index = require("../db/data/test/index");
+const { formatData, createRef, mapData, validateColumns } = require("../utils");
+const { propertiesData } = require("../db/data/test/index");
 
 describe("formatData", () => {
   beforeEach(() => {
@@ -16,7 +16,7 @@ describe("formatData", () => {
   });
 
   test("should not mutate passed data", () => {
-    formatData(dataSample); // testing invocation
+    formatData(dataSample);
     expect(dataSample).toEqual([
       {
         property_type: "Apartment",
@@ -27,19 +27,18 @@ describe("formatData", () => {
         description: "Description of House.",
       },
     ]);
-    // testing return value
     const result = formatData(dataSample);
     expect(result).not.toEqual(dataSample);
   });
 
   test("return value should be of type array", () => {
     const result = formatData(dataSample);
-    expect(Array.isArray(result)).toBe(true);
+    expect(result).toBeArray();
   });
 
   test("should reformat data into array of nested arrays for insertion into the database", () => {
     const result = formatData(dataSample);
-    expect(result).toEqual([
+    expect(result).toIncludeAllMembers([
       ["Apartment", "Description of Apartment."],
       ["House", "Description of House."],
     ]);
@@ -84,20 +83,20 @@ describe("createRef", () => {
 
   test("should return an object", () => {
     const result = createRef(dataSample, mockCB, "user_id");
-    expect(typeof result).toBe("object");
+    expect(result).toBeObject();
   });
 
   test("assigned two keys and maps the values of those keys to eachother as a key value pair", () => {
     const result = createRef(dataSample, mockCB, "user_id");
-    expect(result).not.toHaveProperty("user_id");
-    expect(result).not.toHaveProperty("full_name");
-    expect(result).toHaveProperty("Isabella Martinez");
+    expect(result).not.toContain("user_id");
+    expect(result).not.toContain("full_name");
+    expect(result).toContainKey("Isabella Martinez");
     expect(result["Isabella Martinez"]).toBe(5);
   });
 
   test("assigns multiple key value pairs", () => {
     const result = createRef(dataSample, mockCB, "user_id");
-    expect(Object.keys(result).length).toBe(2);
+    expect(Object.keys(result)).toBeArrayOfSize(2);
   });
 });
 
@@ -139,31 +138,27 @@ describe("mapData", () => {
   test("should map a new property to each object in the array, with the value obtained by referencing a property in a reference object", () => {
     const result = mapData(dataSample, refObj, "host_id", "host_name");
     result.forEach((item) => {
-      expect(item).toHaveProperty("host_id");
-      expect(typeof item.host_id).toBe("number");
+      expect(item).toContainKey("host_id");
+      expect(item.host_id).toBeNumber();
     });
   });
 
   test("should remove key value pair that is no longer required", () => {
     const result = mapData(dataSample, refObj, "host_id", "host_name");
     result.forEach((item) => {
-      expect(item).not.toHaveProperty("host_name");
+      expect(item).not.toContain("host_name");
     });
   });
 
   test("should include all other non-specified key value pairs", () => {
     const result = mapData(dataSample, refObj, "host_id", "host_name");
     result.forEach((item) => {
-      expect(item).toHaveProperty("name");
-      expect(item).toHaveProperty("property_type");
-      expect(item).toHaveProperty("location");
-      expect(item).toHaveProperty("price_per_night");
-      expect(item).toHaveProperty("description");
+      expect(item).toContainKeys(["name", "property_type", "location", "price_per_night", "description"]);
     });
   });
 
   test("should map correct value to new property for each object in the array", () => {
-    const result = mapData(index.propertiesData, refObj, "host_id", "host_name");
+    const result = mapData(propertiesData, refObj, "host_id", "host_name");
     result.forEach((item) => {
       if (item.host_name === "Alice Johsnson") {
         expect(item.host_id).toBe(1);
@@ -171,12 +166,24 @@ describe("mapData", () => {
     });
   });
 
-  test("should return an array of objects, lenght of the array should match length of original data", () => {
-    const result = mapData(index.propertiesData, refObj, "host_id", "host_name");
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBe(index.propertiesData.length);
+  test("should return an array of objects, length of the array should match length of original data", () => {
+    const result = mapData(propertiesData, refObj, "host_id", "host_name");
+    const numOfProperties = propertiesData.length;
+    expect(result).toBeArrayOfSize(numOfProperties);
     result.forEach((item) => {
-      expect(typeof item).toBe("object");
+      expect(item).toBeObject();
     });
+  });
+});
+
+describe("validateColumns", () => {
+  test("should return true when requested column is valid", () => {
+    const testValidate = validateColumns("sort", "favourite_count");
+    expect(testValidate).toBeTrue();
+  });
+
+  test("should return rejected promise if requested column is not valid", async () => {
+    const testValidate = validateColumns("order", "invalid");
+    await expect(testValidate).toReject();
   });
 });

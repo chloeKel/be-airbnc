@@ -21,4 +21,15 @@ exports.mapData = (data, refObj, key, value) => {
   });
 };
 
-const validateColumns = () => {};
+exports.validateColumns = (key, input) => {
+  const validColumns = {
+    sort: ["favourite_count", "price_per_night"],
+    order: ["asc", "desc"],
+  };
+
+  if (validColumns[key].includes(input)) {
+    return true;
+  } else {
+    return Promise.reject({ status: 400, customMsg: "Invalid sorting criteria" });
+  }
+};
