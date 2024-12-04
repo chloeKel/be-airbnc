@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "props": "jest properties.test.js",
     "setup-db": "psql -f ./db/setup-db.sql",
     "seed": "node ./db/run-seed.js",
     "prepare": "husky"
