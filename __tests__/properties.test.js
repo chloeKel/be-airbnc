@@ -53,7 +53,7 @@ describe("GET /api/properties", () => {
     });
   });
 
-  test("should have host property, with the value of the hosts full name, joined from users table", async () => {
+  test("should have host property, joined from users table", async () => {
     const { body } = await request(app).get("/api/properties");
     body.properties.forEach((property) => {
       expect(property).toContainKey("host");
@@ -64,6 +64,7 @@ describe("GET /api/properties", () => {
     const { body } = await request(app).get("/api/properties");
     body.properties.forEach((property) => {
       expect(property).toContainKey("favourite_count");
+      expect(parseFloat(property["favourite_count"])).toBeNumber();
     });
   });
 

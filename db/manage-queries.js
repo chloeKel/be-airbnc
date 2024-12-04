@@ -45,6 +45,8 @@ const create = {
    );`,
 };
 
+const tables = [create.propertyTypes, create.users, create.properties, create.favourites, create.reviews];
+
 const insertPropertyTypes = format("INSERT INTO property_types (property_type, description) VALUES %L RETURNING *;", formatData(propertyTypesData));
 
 const insertUsers = format("INSERT INTO users (first_name, surname, email, phone_number, role, avatar) VALUES %L RETURNING *;", formatData(usersData));
@@ -55,7 +57,7 @@ const insertProperties = async (usersRef) => {
   const queryString = "INSERT INTO properties (name, property_type, location, price_per_night, description, host_id) VALUES %L RETURNING *;";
   const propertiesWithHostId = mapData(propertiesData, usersRef, "host_id", "host_name");
   const values = formatData(propertiesWithHostId);
-  return db.query(format(queryString, values));
+  return format(queryString, values);
 };
 
 const propertiesKey = (prop) => prop.name;
@@ -65,7 +67,7 @@ const insertFavourites = async (usersRef, propsRef) => {
   const withGuestId = mapData(favouritesData, usersRef, "guest_id", "guest_name");
   const withGuestAndPropId = mapData(withGuestId, propsRef, "property_id", "property_name");
   const values = formatData(withGuestAndPropId);
-  return db.query(format(queryString, values));
+  return format(queryString, values);
 };
 
 const insertReviews = async (usersRef, propsRef) => {
@@ -73,7 +75,7 @@ const insertReviews = async (usersRef, propsRef) => {
   const withGuestId = mapData(reviewsData, usersRef, "guest_id", "guest_name");
   const withGuestAndPropId = mapData(withGuestId, propsRef, "property_id", "property_name");
   const values = formatData(withGuestAndPropId);
-  return db.query(format(queryString, values));
+  return format(queryString, values);
 };
 
-module.exports = { dropTables, create, insertPropertyTypes, insertUsers, usersKey, insertProperties, propertiesKey, insertFavourites, insertReviews };
+module.exports = { dropTables, tables, insertPropertyTypes, insertUsers, usersKey, insertProperties, propertiesKey, insertFavourites, insertReviews };
