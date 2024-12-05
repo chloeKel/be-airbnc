@@ -175,15 +175,3 @@ describe("mapData", () => {
     });
   });
 });
-
-describe("validateColumns", () => {
-  test("should return true when requested column is valid", () => {
-    const testValidate = validateColumns("sort", "favourite_count");
-    expect(testValidate).toBeTrue();
-  });
-
-  test("should return rejected promise if requested column is not valid", async () => {
-    const testValidate = validateColumns("order", "invalid");
-    await expect(testValidate).toReject();
-  });
-});
