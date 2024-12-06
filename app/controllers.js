@@ -14,7 +14,7 @@ exports.getProperties = async (req, res, next) => {
 
 exports.postFavourite = async (req, res, next) => {
   try {
-    const id = Number(req.params.id);
+    const { id } = req.params;
     const { guest_id } = req.body;
     const favourite = await insertFavourite(guest_id, id);
     res.status(201).send({ msg: "Property favourited successfully", favourite_id: favourite.favourite_id });
