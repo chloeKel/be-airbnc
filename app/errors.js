@@ -9,7 +9,7 @@ exports.handleMethodNotAllowed = async (req, res, next) => {
 exports.handleBadRequests = async (error, req, res, next) => {
   const sts = error.status || 400;
   const msg = error.msg || "Bad request";
-  res.status(sts).send({ msg: msg });
+  res.status(sts).send({ msg });
 };
 
 exports.handleInternalServerErrors = async (error, req, res, next) => {
