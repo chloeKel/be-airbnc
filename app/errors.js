@@ -1,21 +1,15 @@
-exports.handlePathNotFound = async (req, res) => {
+exports.handlePathNotFound = async (req, res, next) => {
   res.status(404).send({ msg: "Path not found" });
 };
 
-exports.handleMethodNotAllowed = async (req, res) => {
+exports.handleMethodNotAllowed = async (req, res, next) => {
   res.status(405).send({ msg: `${req.method} not allowed` });
 };
 
-exports.handleCustomErrors = async (error, req, res, next) => {
-  if (error.customMsg) {
-    res.status(error.status).send({ msg: error.customMsg });
-  } else {
-    next(error);
-  }
-};
-
 exports.handleBadRequests = async (error, req, res, next) => {
-  res.status(400).send({ msg: "Bad request" });
+  const sts = error.status || 400;
+  const msg = error.msg || "Bad request";
+  res.status(sts).send({ msg: msg });
 };
 
 exports.handleInternalServerErrors = async (error, req, res, next) => {

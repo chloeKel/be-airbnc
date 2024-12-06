@@ -1,3 +1,5 @@
+const db = require("./db/connection");
+
 exports.formatData = (data) => {
   return data.map((data) => Object.values(data));
 };
@@ -18,5 +20,11 @@ exports.mapData = (data, refObj, key, value) => {
     };
     delete mappedData[value];
     return mappedData;
+  });
+};
+
+exports.customError = (sts, msg) => {
+  return new Promise((resolve, reject) => {
+    reject({ status: sts, customMsg: msg });
   });
 };

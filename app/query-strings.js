@@ -9,3 +9,5 @@ AND (CAST($3 AS INT) IS NULL OR properties.host_id = CAST($3 AS INT))
 GROUP BY properties.property_id, users.first_name, users.surname, users.user_id
 ORDER BY ${sort} ${order};`;
 };
+
+exports.addFavourite = `INSERT INTO favourites (guest_id, property_id) VALUES ($1, $2) RETURNING *;`;
