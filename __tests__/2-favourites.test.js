@@ -42,3 +42,35 @@ describe("POST /api/properties/:id/favourite", () => {
     expect(body.msg).toBe("Property favourited successfully");
   });
 });
+
+describe("DELETE /api/favourites/:id", () => {
+  test("successful delete should respond with a server status of 204", async () => {
+    const response = await request(app).delete("/api/favourites/1");
+    expect(response.status).toBe(204);
+  });
+
+  test("unsuccessful delete with an id that does not exist should respond with a server status of 400 and a msg of Favourite does not exist", async () => {
+    const response = await request(app).delete("/api/favourites/100000");
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Favourite does not exist");
+  });
+
+  test("unsuccessful delete with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
+    const response = await request(app).delete("/api/favourites/invalid");
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Bad request");
+  });
+
+  test("should remove row of the favourite_id passed", async () => {
+    const beforeDelete = await db.query("SELECT * FROM favourites WHERE favourite_id = 1");
+    expect(beforeDelete.rows).toBeArrayOfSize(1);
+    await request(app).delete("/api/favourites/1");
+    const afterDelete = await db.query("SELECT * FROM favourites WHERE favourite_id = 1");
+    expect(afterDelete.rows).toBeArrayOfSize(0);
+  });
+
+  test("should respond with no content", async () => {
+    const { body } = await request(app).delete("/api/favourites/1");
+    expect(body).toBeEmptyObject();
+  });
+});

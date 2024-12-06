@@ -11,3 +11,5 @@ ORDER BY ${sort} ${order};`;
 };
 
 exports.addFavourite = `INSERT INTO favourites (guest_id, property_id) VALUES ($1, $2) RETURNING *;`;
+
+exports.deleteFavourite = "DELETE FROM favourites WHERE favourite_id = $1;";

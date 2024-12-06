@@ -1,5 +1,4 @@
-const { fetchProperties, insertFavourite } = require("./models");
-const { handleCustomErrors } = require("./errors");
+const { fetchProperties, insertFavourite, removeFavourite } = require("./models");
 
 exports.getProperties = async (req, res, next) => {
   try {
@@ -18,6 +17,16 @@ exports.postFavourite = async (req, res, next) => {
     const { guest_id } = req.body;
     const favourite = await insertFavourite(guest_id, id);
     res.status(201).send({ msg: "Property favourited successfully", favourite_id: favourite.favourite_id });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteFavourite = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await removeFavourite(id);
+    res.status(204).send();
   } catch (error) {
     next(error);
   }
