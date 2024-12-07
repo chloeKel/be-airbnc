@@ -33,3 +33,5 @@ ORDER BY reviews.created_at DESC;`;
 exports.addReview = "INSERT INTO reviews (rating, comment, guest_id, property_id) VALUES ($1, $2, $3, $4) RETURNING *;";
 
 exports.deleteReview = "DELETE FROM reviews WHERE review_id = $1;";
+
+exports.selectUser = "SELECT user_id, first_name, surname, email, phone_number, avatar, created_at FROM users WHERE user_id = $1;";
