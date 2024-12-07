@@ -30,4 +30,6 @@ LEFT JOIN users on users.user_id = reviews.guest_id
 WHERE reviews.property_id = $1
 ORDER BY reviews.created_at DESC;`;
 
-exports.addReview = `INSERT INTO reviews (rating, comment, guest_id, property_id) VALUES ($1, $2, $3, $4) RETURNING *;`;
+exports.addReview = "INSERT INTO reviews (rating, comment, guest_id, property_id) VALUES ($1, $2, $3, $4) RETURNING *;";
+
+exports.deleteReview = "DELETE FROM reviews WHERE review_id = $1;";
