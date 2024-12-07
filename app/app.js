@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { getProperties, postFavourite, deleteFavourite, getSingleProperty, getReviews, postReview, deleteReview, getUser } = require("./controllers");
+const { getProperties, postFavourite, deleteFavourite, getSingleProperty, getReviews, postReview, deleteReview, getUser, patchUser } = require("./controllers");
 const { handlePathNotFound, handleMethodNotAllowed, handleBadRequests } = require("./errors");
 
 app.use(express.json());
@@ -15,7 +15,7 @@ app.route("/api/properties/:id").get(getSingleProperty).all(handleMethodNotAllow
 
 app.route("/api/properties/:id/reviews").get(getReviews).post(postReview).delete(deleteReview).all(handleMethodNotAllowed);
 
-app.route("/api/users/:id").get(getUser);
+app.route("/api/users/:id").get(getUser).patch(patchUser).all(handleMethodNotAllowed);
 
 app.all("/*", handlePathNotFound);
 app.use(handleBadRequests);

@@ -35,3 +35,6 @@ exports.addReview = "INSERT INTO reviews (rating, comment, guest_id, property_id
 exports.deleteReview = "DELETE FROM reviews WHERE review_id = $1;";
 
 exports.selectUser = "SELECT user_id, first_name, surname, email, phone_number, avatar, created_at FROM users WHERE user_id = $1;";
+
+exports.patchUser = `UPDATE users 
+SET first_name = COALESCE($1, first_name), surname = COALESCE($2, surname), email = COALESCE($3, email), phone_number = COALESCE($4, phone_number), avatar = COALESCE($5, avatar) WHERE user_id = $6 RETURNING *;`;

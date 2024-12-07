@@ -22,7 +22,7 @@ describe("GET /api/properties/:id/reviews", () => {
     expect(status).toBe(200);
   });
 
-  test("unsuccessful get with an id of the wrong data type should respond with a server status of 404 and a msg of Bad request", async () => {
+  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
     const response = await request(app).get("/api/properties/invalid/reviews");
     expect(response.status).toBe(400);
     expect(response.body.msg).toBe("Bad request");
