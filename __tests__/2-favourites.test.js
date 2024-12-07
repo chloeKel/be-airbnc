@@ -45,8 +45,8 @@ describe("POST /api/properties/:id/favourite", () => {
 
 describe("DELETE /api/favourites/:id", () => {
   test("successful delete should respond with a server status of 204", async () => {
-    const response = await request(app).delete("/api/favourites/1");
-    expect(response.status).toBe(204);
+    const { status } = await request(app).delete("/api/favourites/1");
+    expect(status).toBe(204);
   });
 
   test("unsuccessful delete with an id that does not exist should respond with a server status of 400 and a msg of Favourite does not exist", async () => {

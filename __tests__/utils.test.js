@@ -88,8 +88,8 @@ describe("createRef", () => {
 
   test("assigned two keys and maps the values of those keys to eachother as a key value pair", () => {
     const result = createRef(dataSample, mockCB, "user_id");
-    expect(result).not.toContain("user_id");
-    expect(result).not.toContain("full_name");
+    expect(result).not.toHaveProperty("user_id");
+    expect(result).not.toHaveProperty("full_name");
     expect(result).toContainKey("Isabella Martinez");
     expect(result["Isabella Martinez"]).toBe(5);
   });
@@ -146,7 +146,7 @@ describe("mapData", () => {
   test("should remove key value pair that is no longer required", () => {
     const result = mapData(dataSample, refObj, "host_id", "host_name");
     result.forEach((item) => {
-      expect(item).not.toContain("host_name");
+      expect(item).not.toHaveProperty("host_name");
     });
   });
 
