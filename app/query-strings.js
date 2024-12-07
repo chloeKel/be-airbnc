@@ -23,3 +23,9 @@ LEFT JOIN favourites on properties.property_id = favourites.property_id
 LEFT JOIN users ON properties.host_id = users.user_id
 WHERE (CAST($1 AS INT) IS NULL OR properties.property_id = CAST($1 AS INT))
 GROUP BY properties.property_id, users.first_name, users.surname, users.user_id`;
+
+exports.selectReviews = `SELECT reviews.review_id, reviews.comment, reviews.rating, reviews.created_at, CONCAT(users.first_name, ' ', users.surname) AS guest, users.avatar AS guest_avatar
+FROM reviews
+LEFT JOIN users on users.user_id = reviews.guest_id
+WHERE reviews.property_id = $1
+ORDER BY reviews.created_at DESC;`;

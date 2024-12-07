@@ -31,6 +31,7 @@ describe("GET /api/properties/:id", () => {
 
   test("successful get should respond with property object with the keys of property_id, property_name, location, price_per_night and description from properties table", async () => {
     const { body } = await request(app).get("/api/properties/1");
+    expect(body.property).toBeObject();
     expect(body.property).toContainKeys(["property_id", "property_name", "location", "price_per_night", "description"]);
   });
 

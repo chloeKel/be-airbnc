@@ -149,7 +149,7 @@ describe("GET /api/properties?host=<id>", () => {
 });
 
 describe("GET error handling all paths", () => {
-  test("Path not found end points should response with a server status of 404", async () => {
+  test("Path not found end points should respond with a server status of 404", async () => {
     const response = await Promise.all(pathsNotFound.map((endpoint) => request(app).get(endpoint)));
     response.forEach((response) => {
       expect(response.status).toBe(404);
@@ -157,7 +157,7 @@ describe("GET error handling all paths", () => {
     });
   });
 
-  test("Bad request end points should response with a server status of 400", async () => {
+  test("Bad request end points should respond with a server status of 400", async () => {
     const response = await Promise.all(badRequests.map((endpoint) => request(app).get(endpoint)));
     response.forEach((response) => {
       expect(response.status).toBe(400);
