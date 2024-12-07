@@ -30,13 +30,13 @@ describe("POST /api/properties/:id/favourite", () => {
 
   test("It should insert a new row into the favourites table", async () => {
     const favourites = await db.query("SELECT * FROM favourites WHERE guest_id = 1;");
-    const beforePostFavCount = favourites.rows.length;
+    const beforePost = favourites.rows.length;
     await request(app).post("/api/properties/1/favourite").send(mockPayload);
-    const favouritesAfter = await db.query("SELECT * FROM favourites WHERE guest_id = 1;");
-    expect(favouritesAfter.rows).toBeArrayOfSize(beforePostFavCount + 1);
+    const afterPost = await db.query("SELECT * FROM favourites WHERE guest_id = 1;");
+    expect(afterPost.rows).toBeArrayOfSize(beforePost + 1);
   });
 
-  test("should response with a success msg and a favourite_id", async () => {
+  test("should respond with a success msg and a favourite_id", async () => {
     const { body } = await request(app).post("/api/properties/1/favourite").send(mockPayload);
     expect(body).toContainKeys(["msg", "favourite_id"]);
     expect(body.msg).toBe("Property favourited successfully");

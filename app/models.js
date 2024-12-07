@@ -1,6 +1,6 @@
 const format = require("pg-format");
 const db = require("../db/connection");
-const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews } = require("./query-strings");
+const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews, addReview } = require("./query-strings");
 
 exports.fetchProperties = async (maxprice, minprice, sort = "favourite_count", order = "desc", host_id) => {
   const validSortRegex = /favourite_count|price_per_night/gi;
@@ -33,4 +33,9 @@ exports.fetchReviews = async (id) => {
   const reviews = await db.query(selectReviews, [id]);
   if (reviews.rowCount === 0) return Promise.reject({ status: 400, msg: "Property does not exist" });
   return reviews.rows;
+};
+
+exports.insertReview = async (rating, comment, guest_id, id) => {
+  const { rows } = await db.query(addReview, [rating, comment, guest_id, id]);
+  return rows[0];
 };

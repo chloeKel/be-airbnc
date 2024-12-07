@@ -4,6 +4,11 @@ const db = require("../db/connection");
 const { seed } = require("../db/seed");
 
 beforeEach(async () => {
+  mockPayload = {
+    guest_id: 1,
+    rating: 5,
+    comment: "test comment",
+  };
   await seed();
 });
 
@@ -63,17 +68,33 @@ describe("GET /api/properties/:id/reviews", () => {
   });
 });
 
-//  review_id | property_id | guest_id | rating
-// -----------+-------------+----------+--------
-//          1 |           3 |        4 |      4
-//          2 |           1 |        2 |      2
-//          3 |           6 |        6 |      5
-//          4 |           4 |        4 |      2
-//          5 |           9 |        6 |      3
-//          6 |           5 |        2 |      4
-//          7 |           7 |        4 |      5
-//          8 |           1 |        6 |      3
-//          9 |           3 |        4 |      3
-//         10 |           9 |        2 |      5
-//         11 |           6 |        6 |      1
-// (11 rows)
+describe("POST /api/properties/:id/reviews", () => {
+  test("successful post should respond with a server status of 201", async () => {
+    const response = await request(app).post("/api/properties/1/reviews").send(mockPayload);
+    expect(response.status).toBe(201);
+  });
+
+  test("unsuccessful post with an id of the wrong data type or ID that does not exist should respond with a server status of 400 and a msg of Bad request", async () => {
+    const invalid = request(app).post("/api/properties/invalid/reviews").send(mockPayload);
+    const doesNotExist = request(app).post("/api/properties/10000/reviews").send(mockPayload);
+    const response = await Promise.all([invalid, doesNotExist]);
+    response.forEach((res) => {
+      expect(res.status).toBe(400);
+      expect(res.body.msg).toBe("Bad request");
+    });
+  });
+
+  test("It should insert a new row into the reviews table", async () => {
+    const reviews = await db.query("SELECT * FROM reviews");
+    const beforePost = reviews.rows.length;
+    await request(app).post("/api/properties/1/reviews").send(mockPayload);
+    const afterPost = await db.query("SELECT * FROM reviews;");
+    expect(afterPost.rows).toBeArrayOfSize(beforePost + 1);
+  });
+
+  test("should respond with the new review object which should contain the keys of review_id, property_id, guest_id, rating, comment and created_at", async () => {
+    const { body } = await request(app).post("/api/properties/1/reviews").send(mockPayload);
+    expect(body).toBeObject();
+    expect(body).toContainKeys(["review_id", "property_id", "guest_id", "rating", "comment", "created_at"]);
+  });
+});

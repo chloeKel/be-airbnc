@@ -1,4 +1,4 @@
-const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, fetchReviews } = require("./models");
+const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, fetchReviews, insertReview } = require("./models");
 
 exports.getProperties = async (req, res, next) => {
   try {
@@ -50,6 +50,17 @@ exports.getReviews = async (req, res, next) => {
     const sum = reviews.reduce((sum, review) => sum + review.rating, 0);
     const average = sum / reviews.length.toFixed(2);
     res.send({ reviews, average_rating: average });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.postReview = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { rating, comment, guest_id } = req.body;
+    const review = await insertReview(rating, comment, guest_id, id);
+    res.status(201).send(review);
   } catch (error) {
     next(error);
   }
