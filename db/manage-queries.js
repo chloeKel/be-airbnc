@@ -1,10 +1,10 @@
 const db = require("./connection");
 const format = require("pg-format");
 const { formatData, mapData } = require("../utils");
-const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData, imagesData } = require("./data/test/index");
+const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData, imagesData, bookingsData } = require("./data/test/index");
 
 exports.dropTables = `DROP TABLE IF EXISTS
-    images, reviews, favourites, properties, users, property_types CASCADE;`;
+    bookings, images, reviews, favourites, properties, users, property_types CASCADE;`;
 
 const create = {
   propertyTypes: `CREATE TABLE property_types (
@@ -49,9 +49,17 @@ const create = {
    image_url VARCHAR NOT NULL,
    alt_tag VARCHAR NOT NULL
    );`,
+  bookings: `CREATE TABLE bookings (
+  booking_id SERIAL PRIMARY KEY,
+  property_id INT NOT NULL REFERENCES properties(property_id),
+  guest_id INT NOT NULL REFERENCES users(user_id),
+  check_in_date DATE CONSTRAINT chk_in CHECK (check_in_date >= CURRENT_DATE),
+  check_out_date DATE CONSTRAINT chk_out CHECK (check_out_date > check_in_date),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);`,
 };
 
-exports.tables = [create.propertyTypes, create.users, create.properties, create.favourites, create.reviews, create.images];
+exports.tables = [create.propertyTypes, create.users, create.properties, create.favourites, create.reviews, create.images, create.bookings];
 
 exports.insertPropertyTypes = format("INSERT INTO property_types (property_type, description) VALUES %L;", formatData(propertyTypesData));
 
@@ -88,5 +96,13 @@ exports.insertImages = async (propsRef) => {
   const queryString = "INSERT INTO images (image_url, alt_tag, property_id) VALUES %L;";
   const withPropertyId = mapData(imagesData, propsRef, "property_id", "property_name");
   const values = formatData(withPropertyId);
+  return format(queryString, values);
+};
+
+exports.insertBookings = async (usersRef, propsRef) => {
+  const queryString = "INSERT INTO bookings (check_in_date, check_out_date, guest_id, property_id) VALUES %L;";
+  const withGuestId = mapData(bookingsData, usersRef, "guest_id", "guest_name");
+  const withGuestAndPropId = mapData(withGuestId, propsRef, "property_id", "property_name");
+  const values = formatData(withGuestAndPropId);
   return format(queryString, values);
 };
