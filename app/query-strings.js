@@ -1,6 +1,7 @@
 exports.selectProperties = (sort, order) => {
-  return `SELECT properties.property_id, properties.name AS property_name, properties.location, properties.price_per_night, 
-  CONCAT(users.first_name, ' ', users.surname) AS host, COALESCE(COUNT(favourites.favourite_id), 0) AS favourite_count, 
+  return `SELECT properties.property_id, properties.name AS property_name, properties.location, 
+  properties.price_per_night, CONCAT(users.first_name, ' ', users.surname) AS host, 
+  COALESCE(COUNT(favourites.favourite_id), 0) AS favourite_count, 
 (SELECT image_url FROM images 
 WHERE images.property_id = properties.property_id 
 ORDER BY image_id ASC LIMIT 1) AS image
@@ -20,8 +21,10 @@ exports.addFavourite = `INSERT INTO favourites (guest_id, property_id) VALUES ($
 exports.deleteFavourite = "DELETE FROM favourites WHERE favourite_id = $1;";
 
 exports.selectSingleProperty = `SELECT properties.property_id, properties.name AS property_name, 
-properties.location, properties.price_per_night, properties.description, 
-CONCAT(users.first_name, ' ', users.surname) AS host, users.avatar AS host_avatar, COALESCE(COUNT(favourites.favourite_id), 0) AS favourite_count, 
+properties.location, 
+properties.price_per_night, properties.description, 
+CONCAT(users.first_name, ' ', users.surname) AS host, users.avatar AS host_avatar, 
+COALESCE(COUNT(favourites.favourite_id), 0) AS favourite_count, 
 ARRAY(SELECT image_url FROM images WHERE images.property_id = properties.property_id) AS images,
 CASE WHEN CAST($2 AS INT) IS NULL THEN NULL
 ELSE EXISTS (SELECT * FROM favourites WHERE guest_id = CAST($2 AS INT) AND property_id = CAST($1 AS INT)) 
