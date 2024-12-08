@@ -8,6 +8,9 @@ exports.fetchProperties = async (maxprice, minprice, sort = "favourite_count", o
   if (!sort.match(validSortRegex) && !order.match(validOrderRegex)) return Promise.reject({ status: 400, msg: "Invalid sorting criteria" });
   const queryString = selectProperties(sort, order);
   const { rows } = await db.query(queryString, [maxprice, minprice, host_id]);
+  rows.forEach((row) => {
+    if (row.image === null) delete row.image;
+  });
   return rows;
 };
 

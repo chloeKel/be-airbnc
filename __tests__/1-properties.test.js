@@ -68,6 +68,15 @@ describe("GET /api/properties", () => {
     });
   });
 
+  test("should have image property with image url from images table, if no image has been added for the property and the image key's value is null, the image key should not appear", async () => {
+    const { body } = await request(app).get("/api/properties");
+    body.properties.forEach((property) => {
+      if (property.image) {
+        expect(property.image).not.toBe(null);
+      }
+    });
+  });
+
   test("Returned properties should be ordered by most favourited to least by default", async () => {
     const { body } = await request(app).get("/api/properties");
     expect(body.properties).toBeSortedBy("favourite_count", {

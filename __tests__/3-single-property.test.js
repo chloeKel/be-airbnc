@@ -45,6 +45,12 @@ describe("GET /api/properties/:id", () => {
     expect(body.property).toContainKey("favourite_count");
   });
 
+  test("images should be joined form images table with an array of image_urls as the value", async () => {
+    const { body } = await request(app).get("/api/properties/1");
+    expect(body.property).toContainKey("images");
+    expect(body.property["images"]).toBeArray();
+  });
+
   test("should not have favourited column without user_id parameter", async () => {
     const { body } = await request(app).get("/api/properties/1");
     expect(body.property).not.toHaveProperty("favourited");

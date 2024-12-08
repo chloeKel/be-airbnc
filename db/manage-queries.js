@@ -1,10 +1,10 @@
 const db = require("./connection");
 const format = require("pg-format");
 const { formatData, mapData } = require("../utils");
-const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData } = require("./data/test/index");
+const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData, imagesData } = require("./data/test/index");
 
-const dropTables = `DROP TABLE IF EXISTS
-    reviews, favourites, properties, users, property_types CASCADE;`;
+exports.dropTables = `DROP TABLE IF EXISTS
+    images, reviews, favourites, properties, users, property_types CASCADE;`;
 
 const create = {
   propertyTypes: `CREATE TABLE property_types (
@@ -43,39 +43,50 @@ const create = {
      comment TEXT,
      created_at TIMESTAMP default CURRENT_TIMESTAMP
    );`,
+  images: `CREATE TABLE images (
+   image_id SERIAL PRIMARY KEY, 
+   property_id INT NOT NULL REFERENCES properties(property_id),
+   image_url VARCHAR NOT NULL,
+   alt_tag VARCHAR NOT NULL
+   );`,
 };
 
-const tables = [create.propertyTypes, create.users, create.properties, create.favourites, create.reviews];
+exports.tables = [create.propertyTypes, create.users, create.properties, create.favourites, create.reviews, create.images];
 
-const insertPropertyTypes = format("INSERT INTO property_types (property_type, description) VALUES %L RETURNING *;", formatData(propertyTypesData));
+exports.insertPropertyTypes = format("INSERT INTO property_types (property_type, description) VALUES %L;", formatData(propertyTypesData));
 
-const insertUsers = format("INSERT INTO users (first_name, surname, email, phone_number, role, avatar) VALUES %L RETURNING *;", formatData(usersData));
+exports.insertUsers = format("INSERT INTO users (first_name, surname, email, phone_number, role, avatar) VALUES %L RETURNING *;", formatData(usersData));
 
-const usersKey = (user) => `${user.first_name} ${user.surname}`;
+exports.usersKey = (user) => `${user.first_name} ${user.surname}`;
 
-const insertProperties = async (usersRef) => {
+exports.insertProperties = async (usersRef) => {
   const queryString = "INSERT INTO properties (name, property_type, location, price_per_night, description, host_id) VALUES %L RETURNING *;";
   const propertiesWithHostId = mapData(propertiesData, usersRef, "host_id", "host_name");
   const values = formatData(propertiesWithHostId);
   return format(queryString, values);
 };
 
-const propertiesKey = (prop) => prop.name;
+exports.propertiesKey = (prop) => prop.name;
 
-const insertFavourites = async (usersRef, propsRef) => {
-  const queryString = "INSERT INTO favourites (guest_id, property_id) VALUES %L RETURNING *";
+exports.insertFavourites = async (usersRef, propsRef) => {
+  const queryString = "INSERT INTO favourites (guest_id, property_id) VALUES %L;";
   const withGuestId = mapData(favouritesData, usersRef, "guest_id", "guest_name");
   const withGuestAndPropId = mapData(withGuestId, propsRef, "property_id", "property_name");
   const values = formatData(withGuestAndPropId);
   return format(queryString, values);
 };
 
-const insertReviews = async (usersRef, propsRef) => {
-  const queryString = "INSERT INTO reviews (rating, comment, guest_id, property_id) VALUES %L RETURNING *";
+exports.insertReviews = async (usersRef, propsRef) => {
+  const queryString = "INSERT INTO reviews (rating, comment, guest_id, property_id) VALUES %L;";
   const withGuestId = mapData(reviewsData, usersRef, "guest_id", "guest_name");
   const withGuestAndPropId = mapData(withGuestId, propsRef, "property_id", "property_name");
   const values = formatData(withGuestAndPropId);
   return format(queryString, values);
 };
 
-module.exports = { dropTables, tables, insertPropertyTypes, insertUsers, usersKey, insertProperties, propertiesKey, insertFavourites, insertReviews };
+exports.insertImages = async (propsRef) => {
+  const queryString = "INSERT INTO images (image_url, alt_tag, property_id) VALUES %L;";
+  const withPropertyId = mapData(imagesData, propsRef, "property_id", "property_name");
+  const values = formatData(withPropertyId);
+  return format(queryString, values);
+};

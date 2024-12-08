@@ -1,6 +1,6 @@
 const db = require("./connection");
 const { createRef } = require("../utils");
-const { dropTables, tables, insertPropertyTypes, insertUsers, usersKey, insertProperties, propertiesKey, insertFavourites, insertReviews } = require("./manage-queries");
+const { dropTables, tables, insertPropertyTypes, insertUsers, usersKey, insertProperties, propertiesKey, insertFavourites, insertReviews, insertImages } = require("./manage-queries");
 
 exports.seed = async () => {
   try {
@@ -24,6 +24,9 @@ exports.seed = async () => {
 
     const insertReviewsQuery = await insertReviews(usersRef, propsRef);
     await db.query(insertReviewsQuery);
+
+    const insertImagesQuery = await insertImages(propsRef);
+    await db.query(insertImagesQuery);
   } catch (error) {
     throw error;
   }
