@@ -43,3 +43,7 @@ exports.selectUser = "SELECT user_id, first_name, surname, email, phone_number, 
 
 exports.patchUser = `UPDATE users 
 SET first_name = COALESCE($1, first_name), surname = COALESCE($2, surname), email = COALESCE($3, email), phone_number = COALESCE($4, phone_number), avatar = COALESCE($5, avatar) WHERE user_id = $6 RETURNING *;`;
+
+exports.checkPropertyExists = "SELECT * FROM properties WHERE property_id = $1;";
+
+exports.selectBookings = `SELECT booking_id, check_in_date, check_out_date, created_at FROM bookings WHERE property_id = $1 ORDER BY check_out_date DESC;`;

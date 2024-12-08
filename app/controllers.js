@@ -1,4 +1,4 @@
-const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, fetchReviews, insertReview, removeReview, fetchUser, editUser } = require("./models");
+const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, fetchReviews, insertReview, removeReview, fetchUser, editUser, fetchBookings } = require("./models");
 
 exports.getProperties = async (req, res, next) => {
   try {
@@ -92,6 +92,16 @@ exports.patchUser = async (req, res, next) => {
     const { first_name, surname, email, phone_number, avatar } = req.body;
     const user = await editUser(first_name, surname, email, phone_number, avatar, id);
     res.send(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getBookings = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const bookings = await fetchBookings(id);
+    res.send(bookings);
   } catch (error) {
     next(error);
   }
