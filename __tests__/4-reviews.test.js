@@ -99,20 +99,20 @@ describe("POST /api/properties/:id/reviews", () => {
   });
 });
 
-describe("DELETE /api/properties/:id/reviews", () => {
+describe("DELETE /api/reviews/:id", () => {
   test("successful delete should respond with a server status of 204", async () => {
-    const { status } = await request(app).delete("/api/properties/1/reviews");
+    const { status } = await request(app).delete("/api/reviews/1");
     expect(status).toBe(204);
   });
 
   test("unsuccessful delete with an id that does not exist should respond with a server status of 400 and a msg of Favourite does not exist", async () => {
-    const response = await request(app).delete("/api/properties/10000/reviews");
+    const response = await request(app).delete("/api/reviews/10000");
     expect(response.status).toBe(400);
     expect(response.body.msg).toBe("Review does not exist");
   });
 
   test("unsuccessful delete with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
-    const response = await request(app).delete("/api/properties/invalid/reviews");
+    const response = await request(app).delete("/api/reviews/invalid");
     expect(response.status).toBe(400);
     expect(response.body.msg).toBe("Bad request");
   });
@@ -120,13 +120,13 @@ describe("DELETE /api/properties/:id/reviews", () => {
   test("should remove row of the favourite_id passed", async () => {
     const beforeDelete = await db.query("SELECT * FROM reviews WHERE review_id = 1");
     expect(beforeDelete.rows).toBeArrayOfSize(1);
-    await request(app).delete("/api/properties/1/reviews");
+    await request(app).delete("/api/reviews/1");
     const afterDelete = await db.query("SELECT * FROM reviews WHERE review_id = 1");
     expect(afterDelete.rows).toBeArrayOfSize(0);
   });
 
   test("should respond with no content", async () => {
-    const { body } = await request(app).delete("/api/properties/1/reviews");
+    const { body } = await request(app).delete("/api/reviews/1");
     expect(body).toBeEmptyObject();
   });
 });

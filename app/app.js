@@ -5,6 +5,8 @@ const { handlePathNotFound, handleMethodNotAllowed, handleBadRequests } = requir
 
 app.use(express.json());
 
+app.use(express.json());
+
 app.route("/api/properties").get(getProperties).all(handleMethodNotAllowed);
 
 app.route("/api/properties/:id/favourite").post(postFavourite).all(handleMethodNotAllowed);
@@ -13,7 +15,9 @@ app.route("/api/favourites/:id").delete(deleteFavourite).all(handleMethodNotAllo
 
 app.route("/api/properties/:id").get(getSingleProperty).all(handleMethodNotAllowed);
 
-app.route("/api/properties/:id/reviews").get(getReviews).post(postReview).delete(deleteReview).all(handleMethodNotAllowed);
+app.route("/api/properties/:id/reviews").get(getReviews).post(postReview).all(handleMethodNotAllowed);
+
+app.route("/api/reviews/:id").delete(deleteReview).all(handleMethodNotAllowed);
 
 app.route("/api/users/:id").get(getUser).patch(patchUser).all(handleMethodNotAllowed);
 
