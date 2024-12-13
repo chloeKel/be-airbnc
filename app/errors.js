@@ -7,6 +7,10 @@ exports.handleMethodNotAllowed = async (req, res, next) => {
 };
 
 exports.handleBadRequests = async (error, req, res, next) => {
+  if (error.code === "23P01") {
+    error.status = 409;
+    error.msg = "Dates unavailable for booking";
+  }
   const sts = error.status || 400;
   const msg = error.msg || "Bad request";
   res.status(sts).send({ msg });

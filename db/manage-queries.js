@@ -49,13 +49,18 @@ const create = {
    image_url VARCHAR NOT NULL,
    alt_tag VARCHAR NOT NULL
    );`,
-  bookings: `CREATE TABLE bookings (
+  bookings: `CREATE EXTENSION IF NOT EXISTS btree_gist; 
+  CREATE TABLE bookings (
   booking_id SERIAL PRIMARY KEY,
   property_id INT NOT NULL REFERENCES properties(property_id),
   guest_id INT NOT NULL REFERENCES users(user_id),
-  check_in_date DATE CONSTRAINT chk_in CHECK (check_in_date >= CURRENT_DATE),
-  check_out_date DATE CONSTRAINT chk_out CHECK (check_out_date > check_in_date),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  check_in_date DATE NOT NULL CHECK (check_in_date >= CURRENT_DATE),
+  check_out_date DATE NOT NULL CHECK (check_out_date > check_in_date),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT unique_booking_dates 
+  EXCLUDE USING gist (
+  property_id WITH =,
+  daterange(check_in_date, check_out_date, '[]') WITH &&)
 );`,
 };
 

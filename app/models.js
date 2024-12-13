@@ -1,6 +1,6 @@
 const format = require("pg-format");
 const db = require("../db/connection");
-const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews, addReview, deleteReview, selectUser, patchUser, checkPropertyExists, selectBookings } = require("./query-strings");
+const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews, addReview, deleteReview, selectUser, patchUser, checkPropertyExists, selectBookings, addBooking } = require("./query-strings");
 
 exports.fetchProperties = async (maxprice, minprice, sort = "favourite_count", order = "desc", host_id) => {
   const validSortRegex = /favourite_count|price_per_night/gi;
@@ -67,4 +67,10 @@ exports.fetchBookings = async (id) => {
   const response = { bookings: bookings.rows, property_id: id };
   if (bookings.rowCount === 0) response.msg = "No bookings for this property";
   return response;
+};
+
+exports.insertBooking = async (check_in_date, check_out_date, guest_id, property_id) => {
+  const { rows } = await db.query(addBooking, [check_in_date, check_out_date, guest_id, property_id]);
+  rows[0].msg = "Booking Successful";
+  return rows[0];
 };

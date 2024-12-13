@@ -66,3 +66,5 @@ exports.checkPropertyExists = "SELECT * FROM properties WHERE property_id = $1;"
 exports.selectBookings = `SELECT booking_id, check_in_date, check_out_date, created_at 
 FROM bookings WHERE property_id = $1 
 ORDER BY check_out_date DESC;`;
+
+exports.addBooking = `INSERT INTO bookings (check_in_date, check_out_date, guest_id, property_id) VALUES ($1, $2, $3, $4) RETURNING booking_id;`;
