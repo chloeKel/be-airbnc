@@ -130,7 +130,7 @@ describe("PATCH /api/bookings/:id", () => {
     expect(response.body.msg).toBe("Bad request");
   });
 
-  test("unsuccessful get with a property id that does not exist should respond with a server status of 400 and a msg of Property does not exist", async () => {
+  test("unsuccessful get with a booking id that does not exist should respond with a server status of 400 and a msg of Booking does not exist", async () => {
     const response = await request(app).patch("/api/bookings/100000").send(mockPayload1);
     expect(response.status).toBe(400);
     expect(response.body.msg).toBe("Booking does not exist");
