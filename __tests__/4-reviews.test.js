@@ -105,7 +105,7 @@ describe("DELETE /api/reviews/:id", () => {
     expect(status).toBe(204);
   });
 
-  test("unsuccessful delete with an id that does not exist should respond with a server status of 400 and a msg of Favourite does not exist", async () => {
+  test("unsuccessful delete with an id that does not exist should respond with a server status of 400 and a msg of Review does not exist", async () => {
     const response = await request(app).delete("/api/reviews/10000");
     expect(response.status).toBe(400);
     expect(response.body.msg).toBe("Review does not exist");
@@ -117,11 +117,11 @@ describe("DELETE /api/reviews/:id", () => {
     expect(response.body.msg).toBe("Bad request");
   });
 
-  test("should remove row of the favourite_id passed", async () => {
-    const beforeDelete = await db.query("SELECT * FROM reviews WHERE review_id = 1");
+  test("should remove row of the review id passed", async () => {
+    const beforeDelete = await db.query("SELECT * FROM reviews WHERE review_id = 1;");
     expect(beforeDelete.rows).toBeArrayOfSize(1);
     await request(app).delete("/api/reviews/1");
-    const afterDelete = await db.query("SELECT * FROM reviews WHERE review_id = 1");
+    const afterDelete = await db.query("SELECT * FROM reviews WHERE review_id = 1;");
     expect(afterDelete.rows).toBeArrayOfSize(0);
   });
 

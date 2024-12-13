@@ -1,4 +1,4 @@
-const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, fetchReviews, insertReview, removeReview, fetchUser, editUser, fetchBookings, insertBooking, editBooking } = require("./models");
+const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, fetchReviews, insertReview, removeReview, fetchUser, editUser, fetchBookings, insertBooking, editBooking, removeBooking } = require("./models");
 
 exports.getProperties = async (req, res, next) => {
   try {
@@ -124,6 +124,16 @@ exports.patchBooking = async (req, res, next) => {
     const { check_in_date, check_out_date } = req.body;
     const booking = await editBooking(check_in_date, check_out_date, id);
     res.send(booking);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteBooking = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await removeBooking(id);
+    res.status(204).send();
   } catch (error) {
     next(error);
   }

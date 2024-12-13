@@ -1,6 +1,6 @@
 const format = require("pg-format");
 const db = require("../db/connection");
-const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews, addReview, deleteReview, selectUser, amendUser, checkPropertyExists, selectBookings, addBooking, amendBooking } = require("./query-strings");
+const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews, addReview, deleteReview, selectUser, amendUser, checkPropertyExists, selectBookings, addBooking, amendBooking, deleteBooking } = require("./query-strings");
 
 exports.fetchProperties = async (maxprice, minprice, sort = "favourite_count", order = "desc", host_id) => {
   const validSortRegex = /favourite_count|price_per_night/gi;
@@ -79,4 +79,9 @@ exports.editBooking = async (check_in_date, check_out_date, booking_id) => {
   const booking = await db.query(amendBooking, [check_in_date, check_out_date, booking_id]);
   if (booking.rowCount === 0) return Promise.reject({ status: 400, msg: "Booking does not exist" });
   return booking.rows[0];
+};
+
+exports.removeBooking = async (id) => {
+  const { rowCount } = await db.query(deleteBooking, [id]);
+  if (rowCount === 0) return Promise.reject({ status: 400, msg: "Booking does not exist" });
 };

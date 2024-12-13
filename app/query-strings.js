@@ -73,3 +73,5 @@ exports.amendBooking = `UPDATE bookings
 SET check_in_date = COALESCE($1, check_in_date), 
 check_out_date = COALESCE($2, check_out_date) 
 WHERE booking_id = $3 RETURNING *;`;
+
+exports.deleteBooking = "DELETE FROM bookings WHERE booking_id = $1;";
