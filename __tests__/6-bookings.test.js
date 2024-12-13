@@ -4,16 +4,6 @@ const db = require("../db/connection");
 const { seed } = require("../db/seed");
 
 beforeEach(async () => {
-  goodPayload = {
-    guest_id: 1,
-    check_in_date: "2026-12-16",
-    check_out_date: "2026-12-19",
-  };
-  badPayload = {
-    guest_id: 1,
-    check_in_date: "2025-12-16",
-    check_out_date: "2025-12-19",
-  };
   await seed();
 });
 
@@ -67,6 +57,19 @@ describe("GET /api/properties/:id/bookings", () => {
 });
 
 describe("POST /api/properties/:id/booking", () => {
+  beforeEach(async () => {
+    goodPayload = {
+      guest_id: 1,
+      check_in_date: "2026-12-16",
+      check_out_date: "2026-12-19",
+    };
+    badPayload = {
+      guest_id: 1,
+      check_in_date: "2025-12-16",
+      check_out_date: "2025-12-19",
+    };
+  });
+
   test("successful post should respond with a server status of 201", async () => {
     const { status } = await request(app).post("/api/properties/9/booking").send(goodPayload);
     expect(status).toBe(201);
@@ -101,5 +104,54 @@ describe("POST /api/properties/:id/booking", () => {
     expect(body).toBeObject();
     expect(body).toContainKeys(["msg", "booking_id"]);
     expect(body.msg).toBe("Booking Successful");
+  });
+});
+
+describe("PATCH /api/bookings/:id", () => {
+  beforeEach(async () => {
+    mockPayload1 = {
+      check_in_date: "2026-12-15",
+      check_out_date: "2026-12-18",
+    };
+
+    mockPayload2 = {
+      check_in_date: "2025-12-17",
+    };
+  });
+
+  test("should respond with a server status of 200", async () => {
+    const { status } = await request(app).patch("/api/bookings/1").send(mockPayload1);
+    expect(status).toBe(200);
+  });
+
+  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
+    const response = await request(app).patch("/api/bookings/invalid").send(mockPayload1);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Bad request");
+  });
+
+  test("unsuccessful get with a property id that does not exist should respond with a server status of 400 and a msg of Property does not exist", async () => {
+    const response = await request(app).patch("/api/bookings/100000").send(mockPayload1);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Booking does not exist");
+  });
+
+  test("should respond with all properties of the row", async () => {
+    const { body } = await request(app).patch("/api/bookings/1").send(mockPayload1);
+    console.log(body);
+    expect(body).toContainKeys(["booking_id", "guest_id", "check_in_date", "check_out_date", "created_at", "guest_id", "property_id"]);
+  });
+
+  test("should respond with all updated properties plus any properties that have not been updated", async () => {
+    const prevBooking = await db.query("SELECT * FROM bookings WHERE booking_id = 1;");
+    const { body } = await request(app).patch("/api/bookings/1").send(mockPayload1);
+    expect(body.check_in_date).not.toBe(prevBooking.check_in_date);
+    expect(body.check_out_date).not.toBe(prevBooking.check_out_date);
+  });
+
+  test("If the user enters a date that has already been booked, should respond with a status of 409 (conflict) and a msg of Dates unavailable for booking", async () => {
+    const response = await request(app).patch("/api/bookings/1").send(mockPayload2);
+    expect(response.status).toBe(409);
+    expect(response.body.msg).toBe("Dates unavailable for booking");
   });
 });

@@ -53,7 +53,7 @@ exports.selectUser = `SELECT user_id, first_name, surname, email, phone_number, 
 FROM users 
 WHERE user_id = $1;`;
 
-exports.patchUser = `UPDATE users 
+exports.amendUser = `UPDATE users 
 SET first_name = COALESCE($1, first_name), 
 surname = COALESCE($2, surname), 
 email = COALESCE($3, email), 
@@ -68,3 +68,8 @@ FROM bookings WHERE property_id = $1
 ORDER BY check_out_date DESC;`;
 
 exports.addBooking = `INSERT INTO bookings (check_in_date, check_out_date, guest_id, property_id) VALUES ($1, $2, $3, $4) RETURNING booking_id;`;
+
+exports.amendBooking = `UPDATE bookings 
+SET check_in_date = COALESCE($1, check_in_date), 
+check_out_date = COALESCE($2, check_out_date) 
+WHERE booking_id = $3 RETURNING *;`;
