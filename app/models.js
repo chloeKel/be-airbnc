@@ -1,6 +1,6 @@
 const format = require("pg-format");
 const db = require("../db/connection");
-const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews, addReview, deleteReview, selectUser, amendUser, checkPropertyExists, selectBookings, addBooking, amendBooking, deleteBooking } = require("./query-strings");
+const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews, addReview, deleteReview, selectUser, amendUser, checkExists, selectBookings, addBooking, amendBooking, deleteBooking, selectUserBookings } = require("./query-strings");
 
 exports.fetchProperties = async (maxprice, minprice, sort = "favourite_count", order = "desc", host_id) => {
   const validSortRegex = /favourite_count|price_per_night/gi;
@@ -61,7 +61,8 @@ exports.editUser = async (first_name, surname, email, phone_number, avatar, id) 
 };
 
 exports.fetchBookings = async (id) => {
-  const { rowCount } = await db.query(checkPropertyExists, [id]);
+  const checkPropertiesExist = checkExists("properties", "property_id");
+  const { rowCount } = await db.query(checkPropertiesExist, [id]);
   if (rowCount === 0) return Promise.reject({ status: 404, msg: "Property does not exist" });
   const bookings = await db.query(selectBookings, [id]);
   const response = { bookings: bookings.rows, property_id: id };
@@ -84,4 +85,13 @@ exports.editBooking = async (check_in_date, check_out_date, booking_id) => {
 exports.removeBooking = async (id) => {
   const { rowCount } = await db.query(deleteBooking, [id]);
   if (rowCount === 0) return Promise.reject({ status: 400, msg: "Booking does not exist" });
+};
+
+exports.fetchUserBookings = async (id) => {
+  const checkUserExists = checkExists("users", "user_id");
+  const { rowCount } = await db.query(checkUserExists, [id]);
+  if (rowCount === 0) return Promise.reject({ status: 404, msg: "User does not exist" });
+  const bookings = await db.query(selectUserBookings, [id]);
+  if (bookings.rowCount === 0) return Promise.reject({ status: 404, msg: "No bookings under this user" });
+  return bookings.rows;
 };

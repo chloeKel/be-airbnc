@@ -61,7 +61,7 @@ phone_number = COALESCE($4, phone_number),
 avatar = COALESCE($5, avatar) 
 WHERE user_id = $6 RETURNING *;`;
 
-exports.checkPropertyExists = "SELECT * FROM properties WHERE property_id = $1;";
+exports.checkExists = (column, row) => `SELECT * FROM ${column} WHERE ${row} = $1;`;
 
 exports.selectBookings = `SELECT booking_id, check_in_date, check_out_date, created_at 
 FROM bookings WHERE property_id = $1 
@@ -75,3 +75,14 @@ check_out_date = COALESCE($2, check_out_date)
 WHERE booking_id = $3 RETURNING *;`;
 
 exports.deleteBooking = "DELETE FROM bookings WHERE booking_id = $1;";
+
+exports.selectUserBookings = `SELECT bookings.booking_id, bookings.check_in_date, bookings.check_out_date, bookings.property_id, properties.name AS property_name, CONCAT(users.first_name, ' ', users.surname) AS host,
+(SELECT image_url FROM images 
+WHERE images.property_id = bookings.property_id 
+ORDER BY image_id ASC LIMIT 1) AS image
+FROM bookings
+LEFT JOIN properties ON properties.property_id = bookings.property_id
+LEFT JOIN users ON users.user_id = properties.host_id
+LEFT JOIN images ON images.property_id = bookings.property_id
+WHERE guest_id = $1
+ORDER BY bookings.check_in_date ASC;`;

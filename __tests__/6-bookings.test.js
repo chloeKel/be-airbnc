@@ -186,3 +186,71 @@ describe("DELETE /api/bookings/:id", () => {
     expect(body).toBeEmptyObject();
   });
 });
+
+describe("GET /api/users/:id/bookings", () => {
+  test("successful get should respond with a sever status of 200", async () => {
+    const { status } = await request(app).get("/api/users/2/bookings");
+    expect(status).toBe(200);
+  });
+
+  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
+    const response = await request(app).get("/api/users/invalid/bookings");
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Bad request");
+  });
+
+  test("unsuccessful get with an id that does not exist should respond with a server status of 404 and a msg of User does not exist", async () => {
+    const response = await request(app).get("/api/users/100000/bookings");
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("User does not exist");
+  });
+
+  test("If user has made no bookings respond with a server status of 404 and a msg of No bookings under this user", async () => {
+    const response = await request(app).get("/api/users/1/bookings");
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("No bookings under this user");
+  });
+
+  test("successful get should respond with an object with the key of bookings", async () => {
+    const { body } = await request(app).get("/api/users/2/bookings");
+    expect(body).toBeObject();
+    expect(body).toContainKey("bookings");
+  });
+
+  test("bookings key should have the value of an array of objects with the keys of booking_id, check_in_date, check_out_date, from bookings table", async () => {
+    const { body } = await request(app).get("/api/users/2/bookings");
+    expect(body.bookings).toBeArray();
+    body.bookings.forEach((booking) => {
+      expect(booking).toContainKeys(["booking_id", "check_in_date", "check_out_date"]);
+    });
+  });
+
+  test("bookings objects should also include property id and property name from the properties table", async () => {
+    const { body } = await request(app).get("/api/users/2/bookings");
+    expect(body.bookings).toBeArray();
+    body.bookings.forEach((booking) => {
+      expect(booking).toContainKeys(["property_id", "property_name"]);
+    });
+  });
+
+  test("bookings objects should also include image key with the value of one image from the images table", async () => {
+    const { body } = await request(app).get("/api/users/2/bookings");
+    expect(body.bookings).toBeArray();
+    body.bookings.forEach((booking) => {
+      expect(booking).toContainKey("image");
+    });
+  });
+
+  test("bookings objects should also include host name from the users table", async () => {
+    const { body } = await request(app).get("/api/users/2/bookings");
+    expect(body.bookings).toBeArray();
+    body.bookings.forEach((booking) => {
+      expect(booking).toContainKey("host");
+    });
+  });
+
+  test("bookings should come back in chronological order", async () => {
+    const { body } = await request(app).get("/api/users/2/bookings");
+    expect(body.bookings).toBeSortedBy("check_in_date");
+  });
+});
