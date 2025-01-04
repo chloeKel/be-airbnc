@@ -2,12 +2,14 @@
   "name": "be-airbnc",
   "version": "1.0.0",
   "description": "Draft",
-  "main": "index.js",
+  "main": "listen.js",
   "scripts": {
     "test": "jest --runInBand",
     "setup-db": "psql -f ./db/setup-db.sql",
     "seed": "node ./db/run-seed.js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "start": "node listen.js",
+    "seed-prod": "NODE_ENV=production npm run seed"
   },
   "keywords": [],
   "author": "",
