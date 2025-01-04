@@ -25,22 +25,10 @@ afterAll(async () => {
   await db.end();
 });
 
-describe("GET /api/users/:id", () => {
+describe("GET /api/users/:id happy path", () => {
   test("successful get should respond with a sever status of 200", async () => {
     const { status } = await request(app).get("/api/users/1");
     expect(status).toBe(200);
-  });
-
-  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
-    const response = await request(app).get("/api/users/invalid");
-    expect(response.status).toBe(400);
-    expect(response.body.msg).toBe("Bad request");
-  });
-
-  test("unsuccessful get with a property id that does not exist should respond with a server status of 400 and a msg of Property does not exist", async () => {
-    const response = await request(app).get("/api/users/100000");
-    expect(response.status).toBe(400);
-    expect(response.body.msg).toBe("User does not exist");
   });
 
   test("successful get should respond with an object with the key of user and properties of user_id, first_name, surname, email, phone_number, avatar and created_at", async () => {
@@ -50,22 +38,24 @@ describe("GET /api/users/:id", () => {
   });
 });
 
-describe("PATCH api/users/:id", () => {
-  test("should respond with a server status of 200", async () => {
-    const { status } = await request(app).patch("/api/users/1").send(mockPayload1);
-    expect(status).toBe(200);
-  });
-
+describe("GET /api/users/:id sad path", () => {
   test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
-    const response = await request(app).patch("/api/users/invalid").send(mockPayload1);
+    const response = await request(app).get("/api/users/invalid");
     expect(response.status).toBe(400);
     expect(response.body.msg).toBe("Bad request");
   });
 
-  test("unsuccessful get with a property id that does not exist should respond with a server status of 400 and a msg of Property does not exist", async () => {
-    const response = await request(app).patch("/api/users/100000").send(mockPayload1);
-    expect(response.status).toBe(400);
+  test("unsuccessful get with a user id that does not exist should respond with a server status of 404 and a msg of User does not exist", async () => {
+    const response = await request(app).get("/api/users/100000");
+    expect(response.status).toBe(404);
     expect(response.body.msg).toBe("User does not exist");
+  });
+});
+
+describe("PATCH api/users/:id happy path", () => {
+  test("should respond with a server status of 200", async () => {
+    const { status } = await request(app).patch("/api/users/1").send(mockPayload1);
+    expect(status).toBe(200);
   });
 
   test("should respond with all updated properties", async () => {
@@ -87,5 +77,19 @@ describe("PATCH api/users/:id", () => {
     expect(body.email).toBe(mockPayload2.email);
     expect(body.phone_number).toBe(prevUser.rows[0].phone_number);
     expect(body.avatar).toBe(prevUser.rows[0].avatar);
+  });
+});
+
+describe("PATCH api/users/:id sad path", () => {
+  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
+    const response = await request(app).patch("/api/users/invalid").send(mockPayload1);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Bad request");
+  });
+
+  test("unsuccessful get with a user id that does not exist should respond with a server status of 404 and a msg of User does not exist", async () => {
+    const response = await request(app).patch("/api/users/100000").send(mockPayload1);
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("User does not exist");
   });
 });

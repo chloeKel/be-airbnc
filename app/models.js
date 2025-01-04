@@ -7,11 +7,12 @@ exports.fetchProperties = async (maxprice, minprice, sort = "favourite_count", o
   const validOrderRegex = /asc|desc/gi;
   if (!sort.match(validSortRegex) && !order.match(validOrderRegex)) return Promise.reject({ status: 400, msg: "Invalid sorting criteria" });
   const queryString = selectProperties(sort, order);
-  const { rows } = await db.query(queryString, [maxprice, minprice, host_id]);
-  rows.forEach((row) => {
+  const properties = await db.query(queryString, [maxprice, minprice, host_id]);
+  if (properties.rowCount === 0) return Promise.reject({ status: 404, msg: "Host does not exist" });
+  properties.rows.forEach((row) => {
     if (row.image === null) delete row.image;
   });
-  return rows;
+  return properties.rows;
 };
 
 exports.insertFavourite = async (guest_id, property_id) => {
@@ -21,12 +22,12 @@ exports.insertFavourite = async (guest_id, property_id) => {
 
 exports.removeFavourite = async (id) => {
   const { rowCount } = await db.query(deleteFavourite, [id]);
-  if (rowCount === 0) return Promise.reject({ status: 400, msg: "Favourite does not exist" });
+  if (rowCount === 0) return Promise.reject({ status: 404, msg: "Favourite does not exist" });
 };
 
 exports.fetchSingleProperty = async (property_id, user_id) => {
   const property = await db.query(selectSingleProperty, [property_id, user_id]);
-  if (property.rowCount === 0) return Promise.reject({ status: 400, msg: "Property does not exist" });
+  if (property.rowCount === 0) return Promise.reject({ status: 404, msg: "Property does not exist" });
   const { favourited } = property.rows[0];
   if (favourited === null) delete property.rows[0].favourited;
   return property.rows[0];
@@ -34,7 +35,7 @@ exports.fetchSingleProperty = async (property_id, user_id) => {
 
 exports.fetchReviews = async (id) => {
   const reviews = await db.query(selectReviews, [id]);
-  if (reviews.rowCount === 0) return Promise.reject({ status: 400, msg: "Property does not exist" });
+  if (reviews.rowCount === 0) return Promise.reject({ status: 404, msg: "Property does not exist" });
   return reviews.rows;
 };
 
@@ -45,18 +46,18 @@ exports.insertReview = async (rating, comment, guest_id, id) => {
 
 exports.removeReview = async (id) => {
   const { rowCount } = await db.query(deleteReview, [id]);
-  if (rowCount === 0) return Promise.reject({ status: 400, msg: "Review does not exist" });
+  if (rowCount === 0) return Promise.reject({ status: 404, msg: "Review does not exist" });
 };
 
 exports.fetchUser = async (id) => {
   const user = await db.query(selectUser, [id]);
-  if (user.rowCount === 0) return Promise.reject({ status: 400, msg: "User does not exist" });
+  if (user.rowCount === 0) return Promise.reject({ status: 404, msg: "User does not exist" });
   return user.rows[0];
 };
 
 exports.editUser = async (first_name, surname, email, phone_number, avatar, id) => {
   const user = await db.query(amendUser, [first_name, surname, email, phone_number, avatar, id]);
-  if (user.rowCount === 0) return Promise.reject({ status: 400, msg: "User does not exist" });
+  if (user.rowCount === 0) return Promise.reject({ status: 404, msg: "User does not exist" });
   return user.rows[0];
 };
 
@@ -78,13 +79,13 @@ exports.insertBooking = async (check_in_date, check_out_date, guest_id, property
 
 exports.editBooking = async (check_in_date, check_out_date, booking_id) => {
   const booking = await db.query(amendBooking, [check_in_date, check_out_date, booking_id]);
-  if (booking.rowCount === 0) return Promise.reject({ status: 400, msg: "Booking does not exist" });
+  if (booking.rowCount === 0) return Promise.reject({ status: 404, msg: "Booking does not exist" });
   return booking.rows[0];
 };
 
 exports.removeBooking = async (id) => {
   const { rowCount } = await db.query(deleteBooking, [id]);
-  if (rowCount === 0) return Promise.reject({ status: 400, msg: "Booking does not exist" });
+  if (rowCount === 0) return Promise.reject({ status: 404, msg: "Booking does not exist" });
 };
 
 exports.fetchUserBookings = async (id) => {

@@ -11,22 +11,10 @@ afterAll(async () => {
   await db.end();
 });
 
-describe("GET /api/properties/:id/bookings", () => {
+describe("GET /api/properties/:id/bookings happy path", () => {
   test("successful get should respond with a sever status of 200", async () => {
     const { status } = await request(app).get("/api/properties/1/bookings");
     expect(status).toBe(200);
-  });
-
-  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
-    const response = await request(app).get("/api/properties/invalid/bookings");
-    expect(response.status).toBe(400);
-    expect(response.body.msg).toBe("Bad request");
-  });
-
-  test("unsuccessful get with an id that does not exist should respond with a server status of 404 and a msg of Property does not exist", async () => {
-    const response = await request(app).get("/api/properties/100000/bookings");
-    expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("Property does not exist");
   });
 
   test("If property has no bookings respond with a server status of 200 and a msg of No bookings for this property", async () => {
@@ -56,33 +44,32 @@ describe("GET /api/properties/:id/bookings", () => {
   });
 });
 
-describe("POST /api/properties/:id/booking", () => {
+describe("GET /api/properties/:id/bookings sad path", () => {
+  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
+    const response = await request(app).get("/api/properties/invalid/bookings");
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Bad request");
+  });
+
+  test("unsuccessful get with an id that does not exist should respond with a server status of 404 and a msg of Property does not exist", async () => {
+    const response = await request(app).get("/api/properties/100000/bookings");
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("Property does not exist");
+  });
+});
+
+describe("POST /api/properties/:id/booking happy path", () => {
   beforeEach(async () => {
     goodPayload = {
       guest_id: 1,
       check_in_date: "2026-12-16",
       check_out_date: "2026-12-19",
     };
-    badPayload = {
-      guest_id: 1,
-      check_in_date: "2025-12-16",
-      check_out_date: "2025-12-19",
-    };
   });
 
   test("successful post should respond with a server status of 201", async () => {
     const { status } = await request(app).post("/api/properties/9/booking").send(goodPayload);
     expect(status).toBe(201);
-  });
-
-  test("unsuccessful post with an id of the wrong data type or ID that does not exist should respond with a server status of 400 and a msg of Bad request", async () => {
-    const invalid = await request(app).post("/api/properties/invalid/booking").send(goodPayload);
-    const doesNotExist = await request(app).post("/api/properties/100000/booking").send(goodPayload);
-    const response = await Promise.all([invalid, doesNotExist]);
-    response.forEach((res) => {
-      expect(res.status).toBe(400);
-      expect(res.body.msg).toBe("Bad request");
-    });
   });
 
   test("It should insert a new row into the propertys table assuming there is not a clashing booking", async () => {
@@ -93,12 +80,6 @@ describe("POST /api/properties/:id/booking", () => {
     expect(afterPost.rows).toBeArrayOfSize(beforePost + 1);
   });
 
-  test("If the property has already been booked over the provided dates, should respond with a status of 409 (conflict) and a msg of Dates unavailable for booking", async () => {
-    const response = await request(app).post("/api/properties/9/booking").send(badPayload);
-    expect(response.status).toBe(409);
-    expect(response.body.msg).toBe("Dates unavailable for booking");
-  });
-
   test("successful booking should respond with a successful booking object with a keys of the booking id and msg, the msg should have the value of Booking successful", async () => {
     const { body } = await request(app).post("/api/properties/9/booking").send(goodPayload);
     expect(body).toBeObject();
@@ -107,7 +88,51 @@ describe("POST /api/properties/:id/booking", () => {
   });
 });
 
-describe("PATCH /api/bookings/:id", () => {
+describe("POST /api/properties/:id/booking sad path", () => {
+  beforeEach(async () => {
+    goodPayload = {
+      guest_id: 1,
+      check_in_date: "2026-12-16",
+      check_out_date: "2026-12-19",
+    };
+
+    badPayload = {
+      guest_id: 1,
+      check_in_date: "2025-12-16",
+      check_out_date: "2025-12-19",
+    };
+
+    invalidPayload = {
+      invalid_property: "invalid",
+    };
+  });
+
+  test("unsuccessful post with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
+    const response = await request(app).post("/api/properties/invalid/booking").send(goodPayload);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Bad request");
+  });
+
+  test("unsuccessful post with an id that does not exist should respond with a server status of 404 and a msg of Does not exist", async () => {
+    const response = await request(app).post("/api/properties/100000/booking").send(goodPayload);
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("Does not exist");
+  });
+
+  test("If the property has already been booked over the provided dates, should respond with a status of 409 (conflict) and a msg of Dates unavailable for booking", async () => {
+    const response = await request(app).post("/api/properties/9/booking").send(badPayload);
+    expect(response.status).toBe(409);
+    expect(response.body.msg).toBe("Dates unavailable for booking");
+  });
+
+  test("attempting to post with invalid payload should respond with a server status of 400 and a msg of Bad request", async () => {
+    const response = await request(app).post("/api/properties/9/booking").send(invalidPayload);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Bad request");
+  });
+});
+
+describe("PATCH /api/bookings/:id happy path", () => {
   beforeEach(async () => {
     mockPayload1 = {
       check_in_date: "2026-12-15",
@@ -122,18 +147,6 @@ describe("PATCH /api/bookings/:id", () => {
   test("should respond with a server status of 200", async () => {
     const { status } = await request(app).patch("/api/bookings/1").send(mockPayload1);
     expect(status).toBe(200);
-  });
-
-  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
-    const response = await request(app).patch("/api/bookings/invalid").send(mockPayload1);
-    expect(response.status).toBe(400);
-    expect(response.body.msg).toBe("Bad request");
-  });
-
-  test("unsuccessful get with a booking id that does not exist should respond with a server status of 400 and a msg of Booking does not exist", async () => {
-    const response = await request(app).patch("/api/bookings/100000").send(mockPayload1);
-    expect(response.status).toBe(400);
-    expect(response.body.msg).toBe("Booking does not exist");
   });
 
   test("should respond with all properties of the row", async () => {
@@ -155,22 +168,31 @@ describe("PATCH /api/bookings/:id", () => {
   });
 });
 
-describe("DELETE /api/bookings/:id", () => {
+describe("PATCH /api/bookings/:id sad path", () => {
+  beforeEach(async () => {
+    mockPayload = {
+      check_in_date: "2026-12-15",
+      check_out_date: "2026-12-18",
+    };
+  });
+
+  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
+    const response = await request(app).patch("/api/bookings/invalid").send(mockPayload);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Bad request");
+  });
+
+  test("unsuccessful get with a booking id that does not exist should respond with a server status of 404 and a msg of Booking does not exist", async () => {
+    const response = await request(app).patch("/api/bookings/100000").send(mockPayload);
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("Booking does not exist");
+  });
+});
+
+describe("DELETE /api/bookings/:id happy path", () => {
   test("successful delete should respond with a server status of 204", async () => {
     const { status } = await request(app).delete("/api/bookings/1");
     expect(status).toBe(204);
-  });
-
-  test("unsuccessful delete with an id that does not exist should respond with a server status of 400 and a msg of Booking does not exist", async () => {
-    const response = await request(app).delete("/api/bookings/10000");
-    expect(response.status).toBe(400);
-    expect(response.body.msg).toBe("Booking does not exist");
-  });
-
-  test("unsuccessful delete with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
-    const response = await request(app).delete("/api/bookings/invalid");
-    expect(response.status).toBe(400);
-    expect(response.body.msg).toBe("Bad request");
   });
 
   test("should remove row of the favourite_id passed", async () => {
@@ -180,35 +202,26 @@ describe("DELETE /api/bookings/:id", () => {
     const afterDelete = await db.query("SELECT * FROM bookings WHERE booking_id = 1;");
     expect(afterDelete.rows).toBeArrayOfSize(0);
   });
-
-  test("should respond with no content", async () => {
-    const { body } = await request(app).delete("/api/bookings/1");
-    expect(body).toBeEmptyObject();
-  });
 });
 
-describe("GET /api/users/:id/bookings", () => {
-  test("successful get should respond with a sever status of 200", async () => {
-    const { status } = await request(app).get("/api/users/2/bookings");
-    expect(status).toBe(200);
+describe("DELETE /api/bookings/:id sad path", () => {
+  test("unsuccessful delete with an id that does not exist should respond with a server status of 404 and a msg of Booking does not exist", async () => {
+    const response = await request(app).delete("/api/bookings/10000");
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("Booking does not exist");
   });
 
-  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
-    const response = await request(app).get("/api/users/invalid/bookings");
+  test("unsuccessful delete with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
+    const response = await request(app).delete("/api/bookings/invalid");
     expect(response.status).toBe(400);
     expect(response.body.msg).toBe("Bad request");
   });
+});
 
-  test("unsuccessful get with an id that does not exist should respond with a server status of 404 and a msg of User does not exist", async () => {
-    const response = await request(app).get("/api/users/100000/bookings");
-    expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("User does not exist");
-  });
-
-  test("If user has made no bookings respond with a server status of 404 and a msg of No bookings under this user", async () => {
-    const response = await request(app).get("/api/users/1/bookings");
-    expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("No bookings under this user");
+describe("GET /api/users/:id/bookings happy path", () => {
+  test("successful get should respond with a sever status of 200", async () => {
+    const { status } = await request(app).get("/api/users/2/bookings");
+    expect(status).toBe(200);
   });
 
   test("successful get should respond with an object with the key of bookings", async () => {
@@ -252,5 +265,25 @@ describe("GET /api/users/:id/bookings", () => {
   test("bookings should come back in chronological order", async () => {
     const { body } = await request(app).get("/api/users/2/bookings");
     expect(body.bookings).toBeSortedBy("check_in_date");
+  });
+});
+
+describe("GET /api/users/:id/bookings sad path", () => {
+  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
+    const response = await request(app).get("/api/users/invalid/bookings");
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Bad request");
+  });
+
+  test("unsuccessful get with an id that does not exist should respond with a server status of 404 and a msg of User does not exist", async () => {
+    const response = await request(app).get("/api/users/100000/bookings");
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("User does not exist");
+  });
+
+  test("If user has made no bookings respond with a server status of 404 and a msg of No bookings under this user", async () => {
+    const response = await request(app).get("/api/users/1/bookings");
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("No bookings under this user");
   });
 });

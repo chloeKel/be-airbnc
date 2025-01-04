@@ -12,6 +12,11 @@ exports.handleBadRequests = async (error, req, res, next) => {
     error.msg = "Dates unavailable for booking";
   }
 
+  if (error.code === "23503") {
+    error.status = 404;
+    error.msg = "Does not exist";
+  }
+
   const sts = error.status || 400;
   const msg = error.msg || "Bad request";
   res.status(sts).send({ msg });
