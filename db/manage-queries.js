@@ -48,7 +48,7 @@ const create = {
    );`,
   images: `CREATE TABLE images (
    image_id SERIAL PRIMARY KEY, 
-   property_id INT NOT NULL REFERENCES properties(property_id),
+   property_id INT NOT NULL REFERENCES properties(property_id), 
    image_url VARCHAR NOT NULL,
    alt_tag VARCHAR NOT NULL
    );`,
