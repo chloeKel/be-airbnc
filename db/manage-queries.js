@@ -52,18 +52,13 @@ const create = {
    image_url VARCHAR NOT NULL,
    alt_tag VARCHAR NOT NULL
    );`,
-  bookings: `CREATE EXTENSION IF NOT EXISTS btree_gist; 
-  CREATE TABLE bookings (
+  bookings: `CREATE TABLE bookings (
   booking_id SERIAL PRIMARY KEY,
   property_id INT NOT NULL REFERENCES properties(property_id),
   guest_id INT NOT NULL REFERENCES users(user_id),
-  check_in_date DATE NOT NULL CHECK (check_in_date >= CURRENT_DATE),
-  check_out_date DATE NOT NULL CHECK (check_out_date > check_in_date),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT unique_booking_dates 
-  EXCLUDE USING gist (
-  property_id WITH =,
-  daterange(check_in_date, check_out_date, '[]') WITH &&)
+  check_in_date DATE NOT NULL,
+  check_out_date DATE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );`,
 };
 
@@ -114,3 +109,12 @@ exports.insertBookings = async (usersRef, propsRef) => {
   const values = formatData(withGuestAndPropId);
   return format(queryString, values);
 };
+
+exports.addBookingsConstaints = `ALTER TABLE bookings
+  ADD CONSTRAINT unique_booking_dates
+  EXCLUDE USING gist (
+    property_id WITH =,
+    daterange(check_in_date, check_out_date, '[]') WITH &&
+  ); ALTER TABLE bookings
+  ADD CONSTRAINT bookings_check
+  CHECK (check_out_date > check_in_date);`;
