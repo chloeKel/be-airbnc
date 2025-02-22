@@ -1,7 +1,10 @@
 const db = require("./connection");
 const format = require("pg-format");
 const { formatData, mapData } = require("../utils");
-const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData, imagesData, bookingsData } = require("./data/test/index");
+
+const isProduction = process.env.NODE_ENV === "production";
+
+const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData, imagesData, bookingsData } = isProduction ? require("./data/dev/index") : require("./data/test/index");
 
 exports.dropTables = `DROP TABLE IF EXISTS
     bookings, images, reviews, favourites, properties, users, property_types CASCADE;`;
