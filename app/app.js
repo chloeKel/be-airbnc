@@ -5,7 +5,7 @@ const { getProperties, postFavourite, deleteFavourite, getSingleProperty, getRev
 const { handlePathNotFound, handleMethodNotAllowed, handleBadRequests } = require("./errors");
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: "https://airbnc-k7rs.onrender.com" }));
 
 app.route("/api/properties").get(getProperties).all(handleMethodNotAllowed);
 
