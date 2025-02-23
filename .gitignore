@@ -2,3 +2,4 @@ node_modules
 .env.*
 .husky
 password_and_endpoints.md
+test.js

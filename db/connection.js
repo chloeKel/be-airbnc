@@ -13,6 +13,7 @@ const config = {};
 if (ENV === "production") {
   config.connectionString = process.env.DATABASE_URL;
   config.max = 2;
+  config.host = process.env.DATABASE_HOST || "0.0.0.0";
 }
 
 const db = new Pool(config);
