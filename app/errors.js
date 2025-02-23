@@ -7,19 +7,23 @@ exports.handleMethodNotAllowed = async (req, res, next) => {
 };
 
 exports.handleBadRequests = async (error, req, res, next) => {
-  if (error.code === "23514" || error.code === "23P01") {
-    error.status = 409;
-    error.msg = "Dates unavailable for booking";
+  if (error.code === "22P02" || error.code === "23502") {
+    return res.status(400).send({ msg: "Bad request" });
   }
 
   if (error.code === "23503") {
-    error.status = 404;
-    error.msg = "Does not exist";
+    return res.status(404).send({ msg: "Does not exist" });
   }
 
-  const sts = error.status || 400;
-  const msg = error.msg || "Bad request";
-  res.status(sts).send({ msg });
+  if (error.code === "23514" || error.code === "23P01") {
+    return res.status(409).send({ msg: "Dates unavailable for booking" });
+  }
+
+  if (error.status) {
+    return res.status(error.status).send({ msg: error.msg });
+  }
+
+  next(error);
 };
 
 exports.handleInternalServerErrors = async (error, req, res, next) => {
