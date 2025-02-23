@@ -4,7 +4,7 @@ const app = express();
 const { getProperties, postFavourite, deleteFavourite, getSingleProperty, getReviews, postReview, deleteReview, getUser, patchUser, getBookings, postBooking, patchBooking, deleteBooking, getUserBookings } = require("./controllers");
 const { handlePathNotFound, handleMethodNotAllowed, handleBadRequests } = require("./errors");
 
-app.use(cors({ origin: "https://airbnc-k7rs.onrender.com" }));
+app.use(cors());
 app.use(express.json());
 
 app.route("/api/properties").get(getProperties).all(handleMethodNotAllowed);
