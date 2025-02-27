@@ -1,6 +1,6 @@
 exports.selectProperties = (sort, order) => {
   return `SELECT properties.property_id, properties.name AS property_name, properties.location, 
-  properties.price_per_night, CONCAT(users.first_name, ' ', users.surname) AS host, host_id,
+  properties.price_per_night, CONCAT(users.first_name, ' ', users.surname) AS host,
   COALESCE(COUNT(favourites.favourite_id), 0) AS favourite_count, 
 (SELECT image_url FROM images 
 WHERE images.property_id = properties.property_id 
@@ -22,7 +22,7 @@ exports.deleteFavourite = "DELETE FROM favourites WHERE favourite_id = $1;";
 
 exports.selectSingleProperty = `SELECT properties.property_id, properties.name AS property_name, 
 properties.location, 
-properties.price_per_night, properties.description, 
+properties.price_per_night, properties.description, properties.host_id,
 CONCAT(users.first_name, ' ', users.surname) AS host, users.avatar AS host_avatar, 
 COALESCE(COUNT(favourites.favourite_id), 0) AS favourite_count, 
 ARRAY(SELECT image_url FROM images WHERE images.property_id = properties.property_id) AS images,
