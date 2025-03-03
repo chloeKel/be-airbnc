@@ -55,7 +55,7 @@ describe("GET /api/properties/:id sad path", () => {
   test("unsuccessful get with an id that does not exist should respond with a server status of 404 and a msg of Property does not exist", async () => {
     const response = await request(app).get("/api/properties/100000");
     expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("Property does not exist");
+    expect(response.body.msg).toBe("Oops! This property doesn't exist. Head back to explore more! 🏡✨");
   });
 });
 

@@ -48,7 +48,7 @@ describe("GET /api/users/:id sad path", () => {
   test("unsuccessful get with a user id that does not exist should respond with a server status of 404 and a msg of User does not exist", async () => {
     const response = await request(app).get("/api/users/100000");
     expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("User does not exist");
+    expect(response.body.msg).toBe("Oops! This user doesn't exist. Head back to explore more! 🏡✨");
   });
 });
 
@@ -90,6 +90,6 @@ describe("PATCH api/users/:id sad path", () => {
   test("unsuccessful get with a user id that does not exist should respond with a server status of 404 and a msg of User does not exist", async () => {
     const response = await request(app).patch("/api/users/100000").send(mockPayload1);
     expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("User does not exist");
+    expect(response.body.msg).toBe("Oops! This user doesn't exist. Head back to explore more! 🏡✨");
   });
 });

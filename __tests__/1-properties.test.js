@@ -167,9 +167,9 @@ describe("/api/properties sad paths", () => {
     expect(response.body.msg).toBe("Bad request");
   });
 
-  test("unsuccessful get with an id that does not exist should respond with a server status of 404 and a msg of Property does not exist", async () => {
+  test("unsuccessful get with an id that does not exist should respond with a server status of 404 and a msg of property does not exist", async () => {
     const response = await request(app).get("/api/properties?host_id=100000");
     expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("Host does not exist");
+    expect(response.body.msg).toBe("Oops! This host doesn't exist. Head back to explore more! 🏡✨");
   });
 });
