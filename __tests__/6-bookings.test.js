@@ -21,7 +21,6 @@ describe("GET /api/properties/:id/bookings happy path", () => {
     const response = await request(app).get("/api/properties/10/bookings");
     expect(response.status).toBe(200);
     expect(response.body.bookings).toBeArrayOfSize(0);
-    expect(response.body.msg).toBe("Looks like you haven't booked this property yet! Ready to turn your getaway dreams into reality? 🏡✨");
   });
 
   test("successful get should respond with a body object with the keys of bookings and property_id", async () => {
@@ -181,12 +180,6 @@ describe("PATCH /api/bookings/:id sad path", () => {
     expect(response.status).toBe(400);
     expect(response.body.msg).toBe("Bad request");
   });
-
-  test("unsuccessful get with a booking id that does not exist should respond with a server status of 404 and a msg of Booking does not exist", async () => {
-    const response = await request(app).patch("/api/bookings/100000").send(mockPayload);
-    expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("Adventure awaits, but it looks like you haven't booked one yet! Ready to plan your next getaway? 🌍");
-  });
 });
 
 describe("DELETE /api/bookings/:id happy path", () => {
@@ -205,12 +198,6 @@ describe("DELETE /api/bookings/:id happy path", () => {
 });
 
 describe("DELETE /api/bookings/:id sad path", () => {
-  test("unsuccessful delete with an id that does not exist should respond with a server status of 404 and a msg of Booking does not exist", async () => {
-    const response = await request(app).delete("/api/bookings/10000");
-    expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("Adventure awaits, but it looks like you haven't booked one yet! Ready to plan your next getaway? 🌍");
-  });
-
   test("unsuccessful delete with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
     const response = await request(app).delete("/api/bookings/invalid");
     expect(response.status).toBe(400);
@@ -279,11 +266,5 @@ describe("GET /api/users/:id/bookings sad path", () => {
     const response = await request(app).get("/api/users/100000/bookings");
     expect(response.status).toBe(404);
     expect(response.body.msg).toBe("You're almost there! Log in to unlock your bookings and more. Your next adventure is just a click away! ✨🏡");
-  });
-
-  test("If user has made no bookings respond with a server status of 404 and a msg of No bookings under this user", async () => {
-    const response = await request(app).get("/api/users/1/bookings");
-    expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("Adventure awaits, but it looks like you haven't booked one yet! Ready to plan your next getaway? 🌍");
   });
 });

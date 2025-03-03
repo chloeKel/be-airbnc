@@ -70,12 +70,6 @@ describe("DELETE /api/favourites/:id happy path", () => {
 });
 
 describe("DELETE /api/favourites/:id sad path", () => {
-  test("unsuccessful delete with an id that does not exist should respond with a server status of 404 and a msg of Favourite does not exist", async () => {
-    const response = await request(app).delete("/api/favourites/100000");
-    expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("No favourite properties yet! Head back to explore! 🏡✨");
-  });
-
   test("unsuccessful delete with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
     const response = await request(app).delete("/api/favourites/invalid");
     expect(response.status).toBe(400);

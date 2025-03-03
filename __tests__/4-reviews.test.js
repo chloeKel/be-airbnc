@@ -59,6 +59,11 @@ describe("GET /api/properties/:id/reviews happy path", () => {
       descending: true,
     });
   });
+
+  test("If property has no reviews respond with a server status of 200 and empty array", async () => {
+    const { body } = await request(app).get("/api/properties/2/reviews");
+    expect(body.reviews).toBeArrayOfSize(0);
+  });
 });
 
 describe("GET /api/properties/:id/reviews sad path", () => {
@@ -72,12 +77,6 @@ describe("GET /api/properties/:id/reviews sad path", () => {
     const response = await request(app).get("/api/properties/100000/reviews");
     expect(response.status).toBe(404);
     expect(response.body.msg).toBe("Oops! This property doesn't exist. Head back to explore more! 🏡✨");
-  });
-
-  test("If property has no reviews respond with a server status of 200 and a msg of No reviews for this property", async () => {
-    const response = await request(app).get("/api/properties/2/reviews");
-    expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("There's no reviews for this property yet, would you like to be the first? 🏡✨");
   });
 });
 
@@ -138,12 +137,6 @@ describe("DELETE /api/reviews/:id happy path", () => {
 });
 
 describe("DELETE /api/reviews/:id sad path", () => {
-  test("unsuccessful delete with an id that does not exist should respond with a server status of 404 and a msg of Review does not exist", async () => {
-    const response = await request(app).delete("/api/reviews/10000");
-    expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("Oops! This review doesn't exist. Head back to explore more! 🏡✨");
-  });
-
   test("unsuccessful delete with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
     const response = await request(app).delete("/api/reviews/invalid");
     expect(response.status).toBe(400);

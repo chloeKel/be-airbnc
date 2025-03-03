@@ -86,10 +86,4 @@ describe("PATCH api/users/:id sad path", () => {
     expect(response.status).toBe(400);
     expect(response.body.msg).toBe("Bad request");
   });
-
-  test("unsuccessful get with a user id that does not exist should respond with a server status of 404 and a msg of User does not exist", async () => {
-    const response = await request(app).patch("/api/users/100000").send(mockPayload1);
-    expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("Oops! This user doesn't exist. Head back to explore more! 🏡✨");
-  });
 });

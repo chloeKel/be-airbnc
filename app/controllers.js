@@ -47,6 +47,7 @@ exports.getReviews = async (req, res, next) => {
   try {
     const { id } = req.params;
     const reviews = await fetchReviews(id);
+    if (reviews.length === 0) return res.send({ reviews, average_rating: 0 });
     const sum = reviews.reduce((sum, review) => sum + review.rating, 0);
     const average = sum / reviews.length.toFixed(2);
     res.send({ reviews, average_rating: average });
