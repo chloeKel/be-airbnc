@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews, addReview, deleteReview, selectUser, amendUser, checkExists, selectBookings, addBooking, amendBooking, deleteBooking, selectUserBookings } = require("./query-strings");
+const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews, addReview, deleteReview, selectUser, amendUser, checkExists, selectBookings, addBooking, amendBooking, deleteBooking, selectUserBookings, selectFavourites } = require("./query-strings");
 
 exports.fetchProperties = async (maxprice, minprice, sort = "favourite_count", order = "desc", host_id) => {
   const validSortRegex = /favourite_count|price_per_night/gi;
@@ -11,6 +11,11 @@ exports.fetchProperties = async (maxprice, minprice, sort = "favourite_count", o
     if (row.image === null) delete row.image;
   });
   return properties.rows;
+};
+
+exports.fetchFavourites = async (guest_id) => {
+  const { rows } = await db.query(selectFavourites, [guest_id]);
+  return rows;
 };
 
 exports.insertFavourite = async (guest_id, property_id) => {

@@ -17,7 +17,7 @@ describe("GET /api/properties/:id/bookings happy path", () => {
     expect(status).toBe(200);
   });
 
-  test("If property has no bookings respond with a server status of 200 and a msg of No bookings for this property", async () => {
+  test("If property has no bookings respond with a server status of 200 and an empty array", async () => {
     const response = await request(app).get("/api/properties/10/bookings");
     expect(response.status).toBe(200);
     expect(response.body.bookings).toBeArrayOfSize(0);

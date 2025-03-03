@@ -2,9 +2,7 @@ exports.selectProperties = (sort, order) => {
   return `SELECT properties.property_id, properties.name AS property_name, properties.location, 
   properties.price_per_night, CONCAT(users.first_name, ' ', users.surname) AS host,
   COALESCE(COUNT(favourites.favourite_id), 0) AS favourite_count, 
-(SELECT image_url FROM images 
-WHERE images.property_id = properties.property_id 
-ORDER BY image_id ASC LIMIT 1) AS image
+ARRAY_AGG(images.image_url ORDER BY images.image_id) AS images
 FROM properties
 LEFT JOIN favourites on properties.property_id = favourites.property_id
 LEFT JOIN images ON properties.property_id = images.property_id
@@ -15,6 +13,8 @@ AND (CAST($3 AS INT) IS NULL OR properties.host_id = CAST($3 AS INT))
 GROUP BY properties.property_id, users.first_name, users.surname, users.user_id
 ORDER BY ${sort} ${order};`;
 };
+
+exports.selectFavourites = `SELECT * FROM FAVOURITES WHERE guest_id = $1;`;
 
 exports.addFavourite = `INSERT INTO favourites (guest_id, property_id) VALUES ($1, $2) RETURNING *;`;
 

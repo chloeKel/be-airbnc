@@ -1,4 +1,4 @@
-const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, fetchReviews, insertReview, removeReview, fetchUser, editUser, fetchBookings, insertBooking, editBooking, removeBooking, fetchUserBookings } = require("./models");
+const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, fetchReviews, insertReview, removeReview, fetchUser, editUser, fetchBookings, insertBooking, editBooking, removeBooking, fetchUserBookings, fetchFavourites } = require("./models");
 
 exports.getProperties = async (req, res, next) => {
   try {
@@ -6,6 +6,16 @@ exports.getProperties = async (req, res, next) => {
     const properties = await fetchProperties(maxprice, minprice, sort, order, host_id);
     res.send({ properties });
     return properties;
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getFavourites = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const favourites = await fetchFavourites(id);
+    res.send({ favourites });
   } catch (error) {
     next(error);
   }

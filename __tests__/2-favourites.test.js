@@ -13,6 +13,28 @@ afterAll(async () => {
   await db.end();
 });
 
+describe("GET api/favourites/:id happy path", () => {
+  test("successful request should respond with a server status of 200", async () => {
+    const response = await request(app).get("/api/favourites/2");
+    expect(response.status).toBe(200);
+  });
+
+  test("should have favourite_id, guest_id and property_id properties", async () => {
+    const { body } = await request(app).get("/api/favourites/2");
+    body.favourites.forEach((favourite) => {
+      expect(favourite).toContainKeys(["favourite_id", "guest_id", "property_id"]);
+    });
+  });
+});
+
+describe("GET api/favourites/:id sad paths", () => {
+  test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
+    const response = await request(app).get("/api/favourites/invalid");
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Bad request");
+  });
+});
+
 describe("POST /api/properties/:id/favourite happy path", () => {
   test("successful post should respond with a server status of 201", async () => {
     const response = await request(app).post("/api/properties/1/favourite").send(mockPayload);
