@@ -27,6 +27,7 @@ describe("/api/properties happy paths", () => {
 
     test("should have property_id, property_name, location and price_per_night properties", async () => {
       const { body } = await request(app).get("/api/properties");
+      console.log(body);
       body.properties.forEach((property) => {
         expect(property).toContainKeys(["property_id", "property_name", "location", "price_per_night"]);
       });
