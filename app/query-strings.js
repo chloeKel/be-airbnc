@@ -2,7 +2,14 @@ exports.selectProperties = (sort, order) => {
   return `SELECT properties.property_id, properties.name AS property_name, properties.location,
   properties.price_per_night, CONCAT(users.first_name, ' ', users.surname) AS host,
   COALESCE(fav_count, 0) AS favourite_count,
-  images_array AS images
+  images_array AS images,
+  CASE WHEN CAST($1 AS INT) IS NULL THEN NULL
+  ELSE EXISTS (
+    SELECT 1 FROM favourites 
+    WHERE favourites.property_id = properties.property_id 
+    AND favourites.guest_id = CAST($1 AS INT)
+  ) 
+  END AS favourited
 FROM properties
 LEFT JOIN (
   SELECT property_id, COUNT(favourite_id) AS fav_count
@@ -15,9 +22,9 @@ LEFT JOIN (
   GROUP BY property_id
 ) AS image_agg ON properties.property_id = image_agg.property_id
 LEFT JOIN users ON properties.host_id = users.user_id
-WHERE (CAST($1 AS DECIMAL) IS NULL OR properties.price_per_night <= CAST($1 AS DECIMAL))
-AND (CAST($2 AS DECIMAL) IS NULL OR properties.price_per_night >= CAST($2 AS DECIMAL))
-AND (CAST($3 AS INT) IS NULL OR properties.host_id = CAST($3 AS INT))
+WHERE (CAST($2 AS DECIMAL) IS NULL OR properties.price_per_night <= CAST($2 AS DECIMAL))
+AND (CAST($3 AS DECIMAL) IS NULL OR properties.price_per_night >= CAST($3 AS DECIMAL))
+AND (CAST($4 AS INT) IS NULL OR properties.host_id = CAST($4 AS INT))
 ORDER BY ${sort} ${order};`;
 };
 

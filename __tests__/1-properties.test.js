@@ -158,6 +158,21 @@ describe("/api/properties happy paths", () => {
       expect(body.properties.every((property) => property.host === host)).toBeTrue();
     });
   });
+
+  describe("GET /api/properties?user=<id>", () => {
+    test("successful request should respond with a server status of 200", async () => {
+      const response = await request(app).get("/api/properties?user_id=2");
+      expect(response.status).toBe(200);
+    });
+
+    test("when user id is specified should return properties with a favourited property with the value of a boolean", async () => {
+      const { body } = await request(app).get("/api/properties?user_id=2");
+      body.properties.forEach((property) => {
+        expect(property).toContainKey("favourited");
+        expect(property["favourited"]).toBeBoolean();
+      });
+    });
+  });
 });
 
 describe("/api/properties sad paths", () => {

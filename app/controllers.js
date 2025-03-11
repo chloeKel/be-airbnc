@@ -2,8 +2,8 @@ const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, 
 
 exports.getProperties = async (req, res, next) => {
   try {
-    const { maxprice, minprice, sort, order, host_id } = req.query;
-    const properties = await fetchProperties(maxprice, minprice, sort, order, host_id);
+    const { user_id, maxprice, minprice, sort, order, host_id } = req.query;
+    const properties = await fetchProperties(user_id, maxprice, minprice, sort, order, host_id);
     res.send({ properties });
     return properties;
   } catch (error) {
