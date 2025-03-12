@@ -1,4 +1,4 @@
-const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, fetchReviews, insertReview, removeReview, fetchUser, editUser, fetchBookings, insertBooking, editBooking, removeBooking, fetchUserBookings, fetchFavourites } = require("./models");
+const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, fetchReviews, insertReview, removeReview, fetchUser, editUser, fetchBookings, insertBooking, editBooking, removeBooking, fetchUserBookings, fetchFavourites, fetchAvgRating } = require("./models");
 
 exports.getProperties = async (req, res, next) => {
   try {
@@ -57,10 +57,16 @@ exports.getReviews = async (req, res, next) => {
   try {
     const { id } = req.params;
     const reviews = await fetchReviews(id);
-    if (reviews.length === 0) return res.send({ reviews, average_rating: 0 });
-    const sum = reviews.reduce((sum, review) => sum + review.rating, 0);
-    const average = sum / reviews.length.toFixed(2);
-    res.send({ reviews, average_rating: average });
+    if (reviews.length === 0) {
+      return res.status(204).send({ reviews, average_rating: 0 });
+    } else {
+      const response = await fetchAvgRating(id);
+      const avg = response.reduce((acc, row) => {
+        acc["average_rating"] = row.average_rating;
+        return acc;
+      }, {});
+      res.send({ reviews, average_rating: Number(avg.average_rating) });
+    }
   } catch (error) {
     next(error);
   }

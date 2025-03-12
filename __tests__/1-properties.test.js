@@ -39,11 +39,19 @@ describe("/api/properties happy paths", () => {
       });
     });
 
-    test("should have favourite_count property, with the value of the number of times the property has been favourited, joined from favourites table", async () => {
+    test("should have favourite_count property, with the value of the number of times the property has been favourited, and favourited column with the value of null when an optional user_id query is not added to endpoint, joined from favourites table", async () => {
       const { body } = await request(app).get("/api/properties");
       body.properties.forEach((property) => {
-        expect(property).toContainKey("favourite_count");
+        expect(property).toContainKeys(["favourite_count", "favourited"]);
         expect(parseFloat(property["favourite_count"])).toBeNumber();
+        expect(property["favourited"]).toBeNil();
+      });
+    });
+
+    test("should have average_rating property joined from favourites table", async () => {
+      const { body } = await request(app).get("/api/properties");
+      body.properties.forEach((property) => {
+        expect(property).toContainKey("average_rating");
       });
     });
 

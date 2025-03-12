@@ -1,30 +1,16 @@
 exports.selectProperties = (sort, order) => {
-  return `SELECT properties.property_id, properties.name AS property_name, properties.location,
-  properties.price_per_night, CONCAT(users.first_name, ' ', users.surname) AS host,
-  COALESCE(fav_count, 0) AS favourite_count,
-  images_array AS images,
-  CASE WHEN CAST($1 AS INT) IS NULL THEN NULL
-  ELSE EXISTS (
-    SELECT 1 FROM favourites 
-    WHERE favourites.property_id = properties.property_id 
-    AND favourites.guest_id = CAST($1 AS INT)
-  ) 
-  END AS favourited
+  return `SELECT properties.property_id, properties.name AS property_name, properties.location, properties.price_per_night, CONCAT(users.first_name, ' ', users.surname) AS host, COALESCE(fav_count, 0) AS favourite_count, COALESCE(ROUND(AVG(rating), 1)) AS average_rating, images_array AS images, 
+CASE WHEN CAST($1 AS INT) IS NULL THEN NULL
+ELSE EXISTS (SELECT 1 FROM favourites WHERE favourites.property_id = properties.property_id AND favourites.guest_id = CAST($1 AS INT)) END AS favourited
 FROM properties
-LEFT JOIN (
-  SELECT property_id, COUNT(favourite_id) AS fav_count
-  FROM favourites
-  GROUP BY property_id
-) AS fav_counts ON properties.property_id = fav_counts.property_id
-LEFT JOIN (
-  SELECT property_id, ARRAY_AGG(image_url ORDER BY image_id) AS images_array
-  FROM images
-  GROUP BY property_id
-) AS image_agg ON properties.property_id = image_agg.property_id
+LEFT JOIN (SELECT property_id, COUNT(favourite_id) AS fav_count FROM favourites GROUP BY property_id) AS fav_counts ON properties.property_id = fav_counts.property_id
+LEFT JOIN (SELECT property_id, ARRAY_AGG(image_url ORDER BY image_id) AS images_array FROM images GROUP BY property_id) AS image_agg ON properties.property_id = image_agg.property_id
 LEFT JOIN users ON properties.host_id = users.user_id
+LEFT JOIN reviews ON properties.property_id = reviews.property_id
 WHERE (CAST($2 AS DECIMAL) IS NULL OR properties.price_per_night <= CAST($2 AS DECIMAL))
 AND (CAST($3 AS DECIMAL) IS NULL OR properties.price_per_night >= CAST($3 AS DECIMAL))
 AND (CAST($4 AS INT) IS NULL OR properties.host_id = CAST($4 AS INT))
+GROUP BY properties.property_id, users.first_name, users.surname, users.user_id, fav_count, images_array
 ORDER BY ${sort} ${order};`;
 };
 
@@ -34,12 +20,7 @@ exports.addFavourite = `INSERT INTO favourites (guest_id, property_id) VALUES ($
 
 exports.deleteFavourite = "DELETE FROM favourites WHERE favourite_id = $1;";
 
-exports.selectSingleProperty = `SELECT properties.property_id, properties.name AS property_name, 
-properties.location, 
-properties.price_per_night, properties.description, properties.host_id,
-CONCAT(users.first_name, ' ', users.surname) AS host, users.avatar AS host_avatar, 
-COALESCE(COUNT(favourites.favourite_id), 0) AS favourite_count, 
-ARRAY(SELECT image_url FROM images WHERE images.property_id = properties.property_id) AS images,
+exports.selectSingleProperty = `SELECT properties.property_id, properties.name AS property_name, properties.location, properties.price_per_night, properties.description, properties.host_id, CONCAT(users.first_name, ' ', users.surname) AS host, users.avatar AS host_avatar, COALESCE(ROUND(AVG(rating), $1)) AS average_rating, COALESCE(COUNT(favourites.favourite_id), 0) AS favourite_count, ARRAY(SELECT image_url FROM images WHERE images.property_id = properties.property_id) AS images,
 CASE WHEN CAST($2 AS INT) IS NULL THEN NULL
 ELSE EXISTS (SELECT * FROM favourites WHERE guest_id = CAST($2 AS INT) AND property_id = CAST($1 AS INT)) 
 END AS favourited
@@ -47,8 +28,9 @@ FROM properties
 LEFT JOIN favourites on properties.property_id = favourites.property_id 
 LEFT JOIN images ON properties.property_id = images.property_id
 LEFT JOIN users ON properties.host_id = users.user_id
+LEFT JOIN reviews ON properties.property_id = reviews.property_id
 WHERE (CAST($1 AS INT) IS NULL OR properties.property_id = CAST($1 AS INT))
-GROUP BY properties.property_id, users.first_name, users.surname, users.user_id`;
+GROUP BY properties.property_id, users.first_name, users.surname, users.user_id;`;
 
 exports.selectReviews = `SELECT reviews.review_id, reviews.comment, reviews.rating, reviews.created_at, 
 CONCAT(users.first_name, ' ', users.surname) AS guest, users.avatar AS guest_avatar
@@ -56,6 +38,11 @@ FROM reviews
 LEFT JOIN users on users.user_id = reviews.guest_id
 WHERE reviews.property_id = $1
 ORDER BY reviews.created_at DESC;`;
+
+exports.selectAvgRating = `SELECT property_id, ROUND(AVG(rating), 1) AS average_rating
+FROM reviews
+WHERE property_id = $1
+GROUP BY property_id;`;
 
 exports.addReview = `INSERT INTO reviews (
 rating, comment, guest_id, property_id) 

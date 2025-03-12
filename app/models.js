@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews, addReview, deleteReview, selectUser, amendUser, checkExists, selectBookings, addBooking, amendBooking, deleteBooking, selectUserBookings, selectFavourites } = require("./query-strings");
+const { selectProperties, addFavourite, deleteFavourite, selectSingleProperty, selectReviews, addReview, deleteReview, selectUser, amendUser, checkExists, selectBookings, addBooking, amendBooking, deleteBooking, selectUserBookings, selectFavourites, selectAvgRating } = require("./query-strings");
 
 exports.fetchProperties = async (guest_id, maxprice, minprice, sort = "favourite_count", order = "desc", host_id) => {
   const validSortRegex = /favourite_count|price_per_night/gi;
@@ -41,6 +41,12 @@ exports.fetchReviews = async (id) => {
   if (rowCount === 0) return Promise.reject({ status: 404, msg: "Oops! This property doesn't exist. Head back to explore more! 🏡✨" });
   const { rows } = await db.query(selectReviews, [id]);
   return rows;
+};
+
+exports.fetchAvgRating = async (id) => {
+  const response = await db.query(selectAvgRating, [id]);
+  if (response.rowCount === 0) return { property_id: id, average_rating: 0 };
+  return response.rows;
 };
 
 exports.insertReview = async (rating, comment, guest_id, id) => {

@@ -60,9 +60,10 @@ describe("GET /api/properties/:id/reviews happy path", () => {
     });
   });
 
-  test("If property has no reviews respond with a server status of 200 and empty array", async () => {
-    const { body } = await request(app).get("/api/properties/2/reviews");
-    expect(body.reviews).toBeArrayOfSize(0);
+  test("If property has no reviews respond with a server status of 204 and an empty Object", async () => {
+    const response = await request(app).get("/api/properties/2/reviews");
+    expect(response.status).toBe(204);
+    expect(response.body).toBeEmptyObject();
   });
 });
 

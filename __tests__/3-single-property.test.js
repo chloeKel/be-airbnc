@@ -23,9 +23,9 @@ describe("GET /api/properties/:id happy path", () => {
     expect(body.property).toContainKeys(["property_id", "property_name", "location", "price_per_night", "description"]);
   });
 
-  test("host_avatar key should be joined from users table", async () => {
+  test("host_avatar, host_id and host keys should be joined from users table", async () => {
     const { body } = await request(app).get("/api/properties/1");
-    expect(body.property).toContainKey("host_avatar");
+    expect(body.property).toContainKeys(["host_avatar", "host", "host_id"]);
   });
 
   test("favourite_count should be joined from favourites table", async () => {
@@ -33,10 +33,15 @@ describe("GET /api/properties/:id happy path", () => {
     expect(body.property).toContainKey("favourite_count");
   });
 
-  test("images should be joined form images table with an array of image_urls as the value", async () => {
+  test("images should be joined from images table with an array of image_urls as the value", async () => {
     const { body } = await request(app).get("/api/properties/1");
     expect(body.property).toContainKey("images");
     expect(body.property["images"]).toBeArray();
+  });
+
+  test("average_rating should be joined from reviews table with sum of average rating", async () => {
+    const { body } = await request(app).get("/api/properties/1");
+    expect(body.property).toContainKey("average_rating");
   });
 
   test("should not have favourited column without user_id parameter", async () => {
