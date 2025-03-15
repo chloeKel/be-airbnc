@@ -1,36 +1,62 @@
-exports.selectProperties = (sort, order) => {
-  return `SELECT properties.property_id, properties.name AS property_name, properties.location, properties.price_per_night, CONCAT(users.first_name, ' ', users.surname) AS host, COALESCE(fav_count, 0) AS favourite_count, COALESCE(ROUND(AVG(rating), 1)) AS average_rating, images_array AS images, 
-CASE WHEN CAST($1 AS INT) IS NULL THEN NULL
-ELSE EXISTS (SELECT 1 FROM favourites WHERE favourites.property_id = properties.property_id AND favourites.guest_id = CAST($1 AS INT)) END AS favourited
-FROM properties
-LEFT JOIN (SELECT property_id, COUNT(favourite_id) AS fav_count FROM favourites GROUP BY property_id) AS fav_counts ON properties.property_id = fav_counts.property_id
-LEFT JOIN (SELECT property_id, ARRAY_AGG(image_url ORDER BY image_id) AS images_array FROM images GROUP BY property_id) AS image_agg ON properties.property_id = image_agg.property_id
-LEFT JOIN users ON properties.host_id = users.user_id
-LEFT JOIN reviews ON properties.property_id = reviews.property_id
-WHERE (CAST($2 AS DECIMAL) IS NULL OR properties.price_per_night <= CAST($2 AS DECIMAL))
-AND (CAST($3 AS DECIMAL) IS NULL OR properties.price_per_night >= CAST($3 AS DECIMAL))
-AND (CAST($4 AS INT) IS NULL OR properties.host_id = CAST($4 AS INT))
-GROUP BY properties.property_id, users.first_name, users.surname, users.user_id, fav_count, images_array
-ORDER BY ${sort} ${order};`;
+exports.selectProperties = (guest_id = null, host_id = null, minprice = null, maxprice = null, sort = "favourite_count", order = "desc", property_id = null) => {
+  let query = `SELECT p.*, (SELECT COUNT(*) FROM favourites f WHERE f.property_id = p.property_id) AS favourite_count, ROUND(AVG(r.rating), 1) AS average_rating`;
+
+  if (guest_id) query += `, fav_alias.favourited, fav_alias.favourite_id`;
+
+  query += ` FROM properties p LEFT JOIN favourites f ON p.property_id = f.property_id 
+  LEFT JOIN reviews r ON r.property_id = p.property_id`;
+
+  if (guest_id)
+    query += ` LEFT JOIN (SELECT p.property_id, f.favourite_id,
+    CASE WHEN f.favourite_id IS NOT NULL THEN TRUE ELSE FALSE END AS favourited
+    FROM properties p
+    LEFT JOIN favourites f 
+        ON p.property_id = f.property_id
+        AND (f.guest_id = (CAST(${guest_id} AS INT)) OR (CAST(${guest_id} AS INT)) IS NULL)
+) AS fav_alias ON p.property_id = fav_alias.property_id`;
+
+  const conditions = [];
+
+  if (minprice) conditions.push(`(CAST(${minprice} AS INT) IS NULL OR p.price_per_night >= CAST(${minprice} AS INT))`);
+  if (maxprice) conditions.push(`(CAST(${maxprice} AS INT) IS NULL OR p.price_per_night <= CAST(${maxprice} AS INT))`);
+  if (host_id) conditions.push(`p.host_id = (CAST(${host_id} AS INT))`);
+  if (property_id) conditions.push(`p.property_id = (CAST(${property_id} AS INT))`);
+
+  if (conditions.length > 0) query += ` WHERE ` + conditions.join(" AND ");
+
+  if (guest_id) {
+    query += ` GROUP BY p.property_id, fav_alias.favourited, fav_alias.favourite_id`;
+  } else {
+    query += ` GROUP BY p.property_id`;
+  }
+
+  if (!property_id) query += ` ORDER BY ${sort} ${order};`;
+  return query;
 };
+
+exports.selectImages = (property_id) => {
+  let query = `SELECT p.property_id, ARRAY_AGG(i.image_url ORDER BY i.image_id) FILTER (WHERE i.image_url IS NOT NULL) AS images
+FROM properties p 
+LEFT JOIN images i ON p.property_id = i.property_id`;
+
+  if (property_id) query += ` WHERE p.property_id = (CAST(${property_id} AS INT))`;
+
+  query += ` GROUP BY p.property_id;`;
+
+  return query;
+};
+
+exports.selectHost = `SELECT p.property_id, CONCAT(u.first_name, ' ', u.surname) AS host, u.avatar AS host_avatar 
+FROM properties p 
+LEFT JOIN users u ON p.host_id = u.user_id 
+WHERE p.property_id = (CAST($1 AS INT))  
+GROUP BY p.property_id, u.first_name, u.surname, u.avatar;`;
 
 exports.selectFavourites = `SELECT * FROM FAVOURITES WHERE guest_id = $1;`;
 
 exports.addFavourite = `INSERT INTO favourites (guest_id, property_id) VALUES ($1, $2) RETURNING *;`;
 
 exports.deleteFavourite = "DELETE FROM favourites WHERE favourite_id = $1;";
-
-exports.selectSingleProperty = `SELECT properties.property_id, properties.name AS property_name, properties.location, properties.price_per_night, properties.description, properties.host_id, CONCAT(users.first_name, ' ', users.surname) AS host, users.avatar AS host_avatar, COALESCE(ROUND(AVG(rating), $1)) AS average_rating, COALESCE(COUNT(favourites.favourite_id), 0) AS favourite_count, ARRAY(SELECT image_url FROM images WHERE images.property_id = properties.property_id) AS images,
-CASE WHEN CAST($2 AS INT) IS NULL THEN NULL
-ELSE EXISTS (SELECT * FROM favourites WHERE guest_id = CAST($2 AS INT) AND property_id = CAST($1 AS INT)) 
-END AS favourited
-FROM properties
-LEFT JOIN favourites on properties.property_id = favourites.property_id 
-LEFT JOIN images ON properties.property_id = images.property_id
-LEFT JOIN users ON properties.host_id = users.user_id
-LEFT JOIN reviews ON properties.property_id = reviews.property_id
-WHERE (CAST($1 AS INT) IS NULL OR properties.property_id = CAST($1 AS INT))
-GROUP BY properties.property_id, users.first_name, users.surname, users.user_id;`;
 
 exports.selectReviews = `SELECT reviews.review_id, reviews.comment, reviews.rating, reviews.created_at, 
 CONCAT(users.first_name, ' ', users.surname) AS guest, users.avatar AS guest_avatar
@@ -50,7 +76,7 @@ VALUES ($1, $2, $3, $4) RETURNING *;`;
 
 exports.deleteReview = "DELETE FROM reviews WHERE review_id = $1;";
 
-exports.selectUser = `SELECT user_id, first_name, surname, email, phone_number, avatar, created_at 
+exports.selectUser = `SELECT user_id, first_name, surname, email, phone_number, role, avatar, created_at 
 FROM users 
 WHERE user_id = $1;`;
 

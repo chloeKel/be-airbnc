@@ -2,8 +2,8 @@ const { fetchProperties, insertFavourite, removeFavourite, fetchSingleProperty, 
 
 exports.getProperties = async (req, res, next) => {
   try {
-    const { user_id, maxprice, minprice, sort, order, host_id } = req.query;
-    const properties = await fetchProperties(user_id, maxprice, minprice, sort, order, host_id);
+    const { user_id, host_id, minprice, maxprice, sort, order } = req.query;
+    const properties = await fetchProperties(user_id, host_id, minprice, maxprice, sort, order);
     res.send({ properties });
     return properties;
   } catch (error) {
@@ -44,9 +44,9 @@ exports.deleteFavourite = async (req, res, next) => {
 
 exports.getSingleProperty = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { id: property_id } = req.params;
     const { user_id } = req.query;
-    const property = await fetchSingleProperty(id, user_id);
+    const property = await fetchSingleProperty(property_id, user_id);
     res.send({ property });
   } catch (error) {
     next(error);

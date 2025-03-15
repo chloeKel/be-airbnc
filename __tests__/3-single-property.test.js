@@ -20,7 +20,7 @@ describe("GET /api/properties/:id happy path", () => {
   test("successful get should respond with property object with the keys of property_id, property_name, location, price_per_night and description from properties table", async () => {
     const { body } = await request(app).get("/api/properties/1");
     expect(body.property).toBeObject();
-    expect(body.property).toContainKeys(["property_id", "property_name", "location", "price_per_night", "description"]);
+    expect(body.property).toContainKeys(["property_id", "name", "location", "price_per_night", "description"]);
   });
 
   test("host_avatar, host_id and host keys should be joined from users table", async () => {
@@ -54,7 +54,7 @@ describe("GET /api/properties/:id sad path", () => {
   test("unsuccessful get with an id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
     const response = await request(app).get("/api/properties/invalid");
     expect(response.status).toBe(400);
-    expect(response.body.msg).toBe("Bad request");
+    expect(response.body.msg).toBe("Oops! One or more inputs are invalid. Numeric input required");
   });
 
   test("unsuccessful get with an id that does not exist should respond with a server status of 404 and a msg of Property does not exist", async () => {
@@ -88,9 +88,21 @@ describe("GET /api/properties/:id?user_id=<id> happy path", () => {
 });
 
 describe("GET /api/properties/:id?user_id=<id> sad path", () => {
-  test("unsuccessful get with a user id of the wrong data type should respond with a server status of 404 and a msg of Path not found", async () => {
+  test("unsuccessful get with a user id of the wrong data type should respond with a server status of 400 and a msg of Oops! One or more inputs are invalid. Numeric input required", async () => {
     const response = await request(app).get("/api/properties/1/user_id=invalid");
     expect(response.status).toBe(404);
-    expect(response.body.msg).toBe("Path not found");
+    expect(response.body.msg).toBe("Oops! Invalid path. Head back to explore more 🏡✨");
+  });
+
+  test("unsuccessful get with a user id of that does not exist with a server status of 404 and a msg of Oops! This user doesn't exist. Head back to explore more! 🏡✨", async () => {
+    const response = await request(app).get("/api/properties/1/user_id=10000");
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("Oops! Invalid path. Head back to explore more 🏡✨");
+  });
+
+  test("unsuccessful get with a property id that does not exist should respond with a server status of 404 and a msg of Oops! This property doesn't exist. Head back to explore more! 🏡✨", async () => {
+    const response = await request(app).get("/api/properties/10000/user_id=2");
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("Oops! Invalid path. Head back to explore more 🏡✨");
   });
 });

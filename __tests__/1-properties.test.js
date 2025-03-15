@@ -25,30 +25,22 @@ describe("/api/properties happy paths", () => {
       expect(body.properties).toBeArrayOfSize(numOfProperties);
     });
 
-    test("should have property_id, property_name, location and price_per_night properties", async () => {
+    test("should have property_id, name, location and price_per_night properties", async () => {
       const { body } = await request(app).get("/api/properties");
       body.properties.forEach((property) => {
-        expect(property).toContainKeys(["property_id", "property_name", "location", "price_per_night"]);
+        expect(property).toContainKeys(["property_id", "host_id", "name", "location", "property_type", "price_per_night", "description", "images"]);
       });
     });
 
-    test("should have host property, joined from users table", async () => {
+    test("should have favourite_count property, with the value of the number of times the property has been favourited joined from favourites table", async () => {
       const { body } = await request(app).get("/api/properties");
       body.properties.forEach((property) => {
-        expect(property).toContainKey("host");
-      });
-    });
-
-    test("should have favourite_count property, with the value of the number of times the property has been favourited, and favourited column with the value of null when an optional user_id query is not added to endpoint, joined from favourites table", async () => {
-      const { body } = await request(app).get("/api/properties");
-      body.properties.forEach((property) => {
-        expect(property).toContainKeys(["favourite_count", "favourited"]);
+        expect(property).toContainKey("favourite_count");
         expect(parseFloat(property["favourite_count"])).toBeNumber();
-        expect(property["favourited"]).toBeNil();
       });
     });
 
-    test("should have average_rating property joined from favourites table", async () => {
+    test("should have average_rating property joined from reviews table", async () => {
       const { body } = await request(app).get("/api/properties");
       body.properties.forEach((property) => {
         expect(property).toContainKey("average_rating");
@@ -154,7 +146,7 @@ describe("/api/properties happy paths", () => {
     });
   });
 
-  describe("GET /api/properties?host=<id>", () => {
+  describe("GET /api/properties?host_id=<id>", () => {
     test("successful request should respond with a server status of 200", async () => {
       const response = await request(app).get("/api/properties?host_id=5");
       expect(response.status).toBe(200);
@@ -162,8 +154,7 @@ describe("/api/properties happy paths", () => {
 
     test("when host id is specified should return properties listed under that host id", async () => {
       const { body } = await request(app).get("/api/properties?host_id=5");
-      const host = `${usersData[4].first_name} ${usersData[4].surname}`;
-      expect(body.properties.every((property) => property.host === host)).toBeTrue();
+      expect(body.properties.every((property) => property.host_id === 5)).toBeTrue();
     });
   });
 
@@ -184,9 +175,36 @@ describe("/api/properties happy paths", () => {
 });
 
 describe("/api/properties sad paths", () => {
-  test("unsuccessful get with a host id of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
-    const response = await request(app).get("/api/properties?host_id=invalid");
-    expect(response.status).toBe(400);
-    expect(response.body.msg).toBe("Bad request");
+  test("get with a guest_id, host_id, minprice or maxprice of the wrong data type should respond with a server status of 400 and a msg of Bad request", async () => {
+    const invalidQueries = ["/api/properties?user_id=invalid", "/api/properties?host_id=invalid", "/api/properties?minprice=invalid", "/api/properties?maxprice=invalid"];
+
+    const responses = await Promise.all(invalidQueries.map((endpoint) => request(app).get(endpoint)));
+
+    responses.forEach((response) => {
+      expect(response.status).toBe(400);
+      expect(response.body.msg).toBe("Oops! One or more inputs are invalid. Numeric input required");
+    });
+  });
+
+  test("get with an invalid sort or order criteria should respond with a server status of 400 and a msg of Invalid sorting criteria", async () => {
+    const invalidQueries = ["/api/properties?sort=invalid", "/api/properties?order=invalid"];
+
+    const responses = await Promise.all(invalidQueries.map((endpoint) => request(app).get(endpoint)));
+
+    responses.forEach((response) => {
+      expect(response.status).toBe(400);
+      expect(response.body.msg).toBe("Invalid sorting criteria");
+    });
+  });
+
+  test("get with a guest_id or host_id that does not exist should return with a status of 404 and a msg of Oops! This user doesn't exist. Head back to explore more! 🏡✨", async () => {
+    const invalidQueries = ["/api/properties?user_id=10000", "/api/properties?host_id=10000"];
+
+    const responses = await Promise.all(invalidQueries.map((endpoint) => request(app).get(endpoint)));
+
+    responses.forEach((response) => {
+      expect(response.status).toBe(404);
+      expect(response.body.msg).toBe("Oops! This user doesn't exist. Head back to explore more! 🏡✨");
+    });
   });
 });
