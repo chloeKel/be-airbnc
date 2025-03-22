@@ -2,9 +2,8 @@ const db = require("./connection");
 const format = require("pg-format");
 const { formatData, mapData } = require("../utils");
 
-const isProduction = process.env.NODE_ENV === "production";
-
-const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData, imagesData, bookingsData } = isProduction ? require("./data/dev/index") : require("./data/test/index");
+const isTest = process.env.NODE_ENV === "test";
+const { propertyTypesData, usersData, propertiesData, favouritesData, reviewsData, imagesData, bookingsData } = isTest ? require("./data/test/index") : require("./data/dev/index");
 
 exports.dropTables = `DROP TABLE IF EXISTS
     bookings, images, reviews, favourites, properties, users, property_types CASCADE;`;
@@ -110,11 +109,17 @@ exports.insertBookings = async (usersRef, propsRef) => {
   return format(queryString, values);
 };
 
-exports.addBookingsConstaints = `ALTER TABLE bookings
-  ADD CONSTRAINT unique_booking_dates
-  EXCLUDE USING gist (
-    property_id WITH =,
-    daterange(check_in_date, check_out_date, '[]') WITH &&
-  ); ALTER TABLE bookings
-  ADD CONSTRAINT bookings_check
-  CHECK (check_out_date > check_in_date);`;
+exports.addBookingsConstaints = `
+  CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+  ALTER TABLE bookings
+    ADD CONSTRAINT unique_booking_dates
+    EXCLUDE USING GIST (
+      property_id WITH =,
+      daterange(check_in_date, check_out_date, '[]') WITH &&
+    );
+
+  ALTER TABLE bookings
+    ADD CONSTRAINT bookings_check
+    CHECK (check_out_date > check_in_date);
+`;

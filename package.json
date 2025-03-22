@@ -4,7 +4,7 @@
   "description": "Draft",
   "main": "listen.js",
   "scripts": {
-    "test": "jest --runInBand",
+    "test": "NODE_ENV=test jest --runInBand",
     "setup-db": "psql -f ./db/setup-db.sql",
     "seed": "node ./db/run-seed.js",
     "prepare": "husky",
@@ -25,7 +25,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "jest-extended": "^4.0.2",
-    "pg": "^8.13.1",
+    "pg": "^8.14.1",
     "pg-format": "^1.0.4"
   },
   "jest": {

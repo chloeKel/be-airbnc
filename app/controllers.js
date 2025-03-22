@@ -5,7 +5,6 @@ exports.getProperties = async (req, res, next) => {
     const { user_id, host_id, minprice, maxprice, sort, order } = req.query;
     const properties = await fetchProperties(user_id, host_id, minprice, maxprice, sort, order);
     res.send({ properties });
-    return properties;
   } catch (error) {
     next(error);
   }
