@@ -4,7 +4,15 @@ const app = express();
 const { getProperties, postFavourite, deleteFavourite, getSingleProperty, getReviews, postReview, deleteReview, getUser, patchUser, getBookings, postBooking, patchBooking, deleteBooking, getUserBookings, getFavourites } = require("./controllers");
 const { handlePathNotFound, handleMethodNotAllowed, handleBadRequests } = require("./errors");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 app.route("/api/properties").get(getProperties).all(handleMethodNotAllowed);
