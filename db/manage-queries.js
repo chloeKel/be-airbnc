@@ -123,3 +123,6 @@ exports.addBookingsConstaints = `
     ADD CONSTRAINT bookings_check
     CHECK (check_out_date > check_in_date);
 `;
+
+exports.addFavouritesConstraint = `ALTER TABLE favourites
+ADD CONSTRAINT unique_favourite UNIQUE (guest_id, property_id);`;
