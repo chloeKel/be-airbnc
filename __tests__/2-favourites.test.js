@@ -13,16 +13,23 @@ afterAll(async () => {
   await db.end();
 });
 
-describe("GET api/favourites/:id happy path", () => {
+describe("GET api/favourites/:id (guest id) happy path", () => {
   test("successful request should respond with a server status of 200", async () => {
     const response = await request(app).get("/api/favourites/2");
     expect(response.status).toBe(200);
   });
 
-  test("should have favourite_id, guest_id and property_id properties", async () => {
+  test("should have favourited and favouite_id joined from favourites table", async () => {
     const { body } = await request(app).get("/api/favourites/2");
     body.favourites.forEach((favourite) => {
-      expect(favourite).toContainKeys(["favourite_id", "guest_id", "property_id"]);
+      expect(favourite).toContainKeys(["favourited", "favourite_id"]);
+    });
+  });
+
+  test("should have image proerty with value of one image and alt tag property from images table", async () => {
+    const { body } = await request(app).get("/api/favourites/2");
+    body.favourites.forEach((favourite) => {
+      expect(favourite).toContainKeys(["image", "alt_tag"]);
     });
   });
 });

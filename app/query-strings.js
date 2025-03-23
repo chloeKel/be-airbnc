@@ -52,18 +52,28 @@ LEFT JOIN users u ON p.host_id = u.user_id
 WHERE p.property_id = (CAST($1 AS INT))  
 GROUP BY p.property_id, u.first_name, u.surname, u.avatar;`;
 
-exports.selectFavourites = `SELECT * FROM FAVOURITES WHERE guest_id = $1;`;
+exports.selectFavourites = `SELECT p.property_id, p.name, p.location, p.price_per_night, f.favourite_id, true AS favourited, i.image_url AS image, i.alt_tag AS alt_tag
+FROM favourites f
+INNER JOIN properties p 
+    ON f.property_id = p.property_id
+INNER JOIN (
+    SELECT DISTINCT ON (property_id) property_id, image_url, alt_tag
+    FROM images
+    ORDER BY property_id, image_id ASC
+) i 
+    ON p.property_id = i.property_id
+WHERE f.guest_id = $1;`;
 
 exports.addFavourite = `INSERT INTO favourites (guest_id, property_id) VALUES ($1, $2) RETURNING *;`;
 
 exports.deleteFavourite = "DELETE FROM favourites WHERE favourite_id = $1;";
 
-exports.selectReviews = `SELECT reviews.review_id, reviews.comment, reviews.rating, reviews.created_at, 
-CONCAT(users.first_name, ' ', users.surname) AS guest, users.avatar AS guest_avatar
-FROM reviews
-LEFT JOIN users on users.user_id = reviews.guest_id
-WHERE reviews.property_id = $1
-ORDER BY reviews.created_at DESC;`;
+exports.selectReviews = `SELECT r.review_id, r.comment, r.rating, r.created_at, 
+CONCAT(u.first_name, ' ', u.surname) AS guest, u.avatar AS guest_avatar
+FROM reviews r
+LEFT JOIN users u on u.user_id = r.guest_id
+WHERE r.property_id = $1
+ORDER BY r.created_at DESC;`;
 
 exports.selectAvgRating = `SELECT property_id, ROUND(AVG(rating), 1) AS average_rating
 FROM reviews
@@ -103,12 +113,12 @@ WHERE booking_id = $3 RETURNING *;`;
 
 exports.deleteBooking = "DELETE FROM bookings WHERE booking_id = $1;";
 
-exports.selectUserBookings = `SELECT bookings.booking_id, bookings.check_in_date, bookings.check_out_date, bookings.property_id, properties.name AS property_name, CONCAT(users.first_name, ' ', users.surname) AS host,
+exports.selectUserBookings = `SELECT b.booking_id, b.check_in_date, b.check_out_date, b.property_id, p.name AS property_name, CONCAT(u.first_name, ' ', u.surname) AS host,
     (SELECT image_url FROM images 
-     WHERE images.property_id = bookings.property_id 
+     WHERE images.property_id = b.property_id 
      ORDER BY image_id ASC LIMIT 1) AS image
-FROM bookings
-LEFT JOIN properties ON properties.property_id = bookings.property_id
-LEFT JOIN users ON users.user_id = properties.host_id
+FROM bookings b
+LEFT JOIN properties p ON p.property_id = b.property_id
+LEFT JOIN users u ON u.user_id = p.host_id
 WHERE guest_id = $1
-ORDER BY bookings.check_in_date ASC;`;
+ORDER BY b.check_in_date ASC;`;
