@@ -60,20 +60,6 @@ exports.fetchProperties = async (guest_id, host_id, minprice, maxprice, sort, or
   return propsWithImages;
 };
 
-exports.fetchFavourites = async (guest_id) => {
-  const { rows } = await db.query(selectFavourites, [guest_id]);
-  return rows;
-};
-
-exports.insertFavourite = async (guest_id, property_id) => {
-  const { rows } = await db.query(addFavourite, [guest_id, property_id]);
-  return rows[0];
-};
-
-exports.removeFavourite = async (id) => {
-  await db.query(deleteFavourite, [id]);
-};
-
 exports.fetchSingleProperty = async (property_id, user_id) => {
   const validNums = /\d/g;
   if ((user_id && !user_id.match(validNums)) || (property_id && !property_id.match(validNums))) {
@@ -108,54 +94,68 @@ exports.fetchSingleProperty = async (property_id, user_id) => {
   return property;
 };
 
-exports.fetchReviews = async (id) => {
-  const checkPropertiesExist = checkExists("properties", "property_id");
-  const { rowCount } = await db.query(checkPropertiesExist, [id]);
-  if (rowCount === 0) {
-    return Promise.reject({ status: 404, msg: "Oops! This property doesn't exist. Head back to explore more! 🏡✨" });
-  }
-  const { rows } = await db.query(selectReviews, [id]);
+exports.fetchFavourites = async (guest_id) => {
+  const { rows } = await db.query(selectFavourites, [guest_id]);
   return rows;
 };
 
-exports.fetchAvgRating = async (id) => {
-  const response = await db.query(selectAvgRating, [id]);
+exports.insertFavourite = async (guest_id, property_id) => {
+  const { rows } = await db.query(addFavourite, [guest_id, property_id]);
+  return rows[0];
+};
+
+exports.removeFavourite = async (favourite_id) => {
+  await db.query(deleteFavourite, [favourite_id]);
+};
+
+exports.fetchReviews = async (property_id) => {
+  const checkPropertiesExist = checkExists("properties", "property_id");
+  const { rowCount } = await db.query(checkPropertiesExist, [property_id]);
+  if (rowCount === 0) {
+    return Promise.reject({ status: 404, msg: "Oops! This property doesn't exist. Head back to explore more! 🏡✨" });
+  }
+  const { rows } = await db.query(selectReviews, [property_id]);
+  return rows;
+};
+
+exports.fetchAvgRating = async (property_id) => {
+  const response = await db.query(selectAvgRating, [property_id]);
   if (response.rowCount === 0) {
     return { property_id: id, average_rating: 0 };
   }
   return response.rows;
 };
 
-exports.insertReview = async (rating, comment, guest_id, id) => {
-  const { rows } = await db.query(addReview, [rating, comment, guest_id, id]);
+exports.insertReview = async (rating, comment, guest_id, property_id) => {
+  const { rows } = await db.query(addReview, [rating, comment, guest_id, property_id]);
   return rows[0];
 };
 
-exports.removeReview = async (id) => {
-  await db.query(deleteReview, [id]);
+exports.removeReview = async (review_id) => {
+  await db.query(deleteReview, [review_id]);
 };
 
-exports.fetchUser = async (id) => {
-  const user = await db.query(selectUser, [id]);
+exports.fetchUser = async (user_id) => {
+  const user = await db.query(selectUser, [user_id]);
   if (user.rowCount === 0) {
     return Promise.reject({ status: 404, msg: "Oops! This user doesn't exist. Head back to explore more! 🏡✨" });
   }
   return user.rows[0];
 };
 
-exports.editUser = async (first_name, surname, email, phone_number, avatar, id) => {
-  const user = await db.query(amendUser, [first_name, surname, email, phone_number, avatar, id]);
+exports.editUser = async (first_name, surname, email, phone_number, avatar, user_id) => {
+  const user = await db.query(amendUser, [first_name, surname, email, phone_number, avatar, user_id]);
   return user.rows[0];
 };
 
-exports.fetchBookings = async (id) => {
+exports.fetchBookings = async (property_id) => {
   const checkPropertiesExist = checkExists("properties", "property_id");
-  const { rowCount } = await db.query(checkPropertiesExist, [id]);
+  const { rowCount } = await db.query(checkPropertiesExist, [property_id]);
   if (rowCount === 0) {
     return Promise.reject({ status: 404, msg: "Oops! This property doesn't exist. Head back to explore more! 🏡✨" });
   }
-  const bookings = await db.query(selectBookings, [id]);
-  const response = { bookings: bookings.rows, property_id: id };
+  const bookings = await db.query(selectBookings, [property_id]);
+  const response = { bookings: bookings.rows, property_id: property_id };
   return response;
 };
 
@@ -170,16 +170,16 @@ exports.editBooking = async (check_in_date, check_out_date, booking_id) => {
   return booking.rows[0];
 };
 
-exports.removeBooking = async (id) => {
-  await db.query(deleteBooking, [id]);
+exports.removeBooking = async (booking_id) => {
+  await db.query(deleteBooking, [booking_id]);
 };
 
-exports.fetchUserBookings = async (id) => {
+exports.fetchUserBookings = async (user_id) => {
   const checkUserExists = checkExists("users", "user_id");
-  const { rowCount } = await db.query(checkUserExists, [id]);
+  const { rowCount } = await db.query(checkUserExists, [user_id]);
   if (rowCount === 0) {
     return Promise.reject({ status: 404, msg: "You're almost there! Log in to unlock your bookings and more. Your next adventure is just a click away! ✨🏡" });
   }
-  const bookings = await db.query(selectUserBookings, [id]);
+  const bookings = await db.query(selectUserBookings, [user_id]);
   return bookings.rows;
 };

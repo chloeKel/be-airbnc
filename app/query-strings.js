@@ -62,33 +62,33 @@ INNER JOIN (
     ORDER BY property_id, image_id ASC
 ) i 
     ON p.property_id = i.property_id
-WHERE f.guest_id = $1;`;
+WHERE f.guest_id = (CAST($1 AS INT));`;
 
-exports.addFavourite = `INSERT INTO favourites (guest_id, property_id) VALUES ($1, $2) RETURNING *;`;
+exports.addFavourite = `INSERT INTO favourites (guest_id, property_id) VALUES ((CAST($1 AS INT)), (CAST($2 AS INT))) RETURNING *;`;
 
-exports.deleteFavourite = "DELETE FROM favourites WHERE favourite_id = $1;";
+exports.deleteFavourite = "DELETE FROM favourites WHERE favourite_id = (CAST($1 AS INT));";
 
 exports.selectReviews = `SELECT r.review_id, r.comment, r.rating, r.created_at, 
 CONCAT(u.first_name, ' ', u.surname) AS guest, u.avatar AS guest_avatar
 FROM reviews r
 LEFT JOIN users u on u.user_id = r.guest_id
-WHERE r.property_id = $1
+WHERE r.property_id = (CAST($1 AS INT))
 ORDER BY r.created_at DESC;`;
 
 exports.selectAvgRating = `SELECT property_id, ROUND(AVG(rating), 1) AS average_rating
 FROM reviews
-WHERE property_id = $1
+WHERE property_id = (CAST($1 AS INT))
 GROUP BY property_id;`;
 
 exports.addReview = `INSERT INTO reviews (
 rating, comment, guest_id, property_id) 
-VALUES ($1, $2, $3, $4) RETURNING *;`;
+VALUES ((CAST($1 AS INT)), $2, (CAST($3 AS INT)), (CAST($4 AS INT))) RETURNING *;`;
 
 exports.deleteReview = "DELETE FROM reviews WHERE review_id = $1;";
 
 exports.selectUser = `SELECT user_id, first_name, surname, email, phone_number, role, avatar, created_at 
 FROM users 
-WHERE user_id = $1;`;
+WHERE user_id = (CAST($1 AS INT));`;
 
 exports.amendUser = `UPDATE users 
 SET first_name = COALESCE($1, first_name), 
@@ -96,22 +96,22 @@ surname = COALESCE($2, surname),
 email = COALESCE($3, email), 
 phone_number = COALESCE($4, phone_number), 
 avatar = COALESCE($5, avatar) 
-WHERE user_id = $6 RETURNING *;`;
+WHERE user_id = (CAST($6 AS INT)) RETURNING *;`;
 
 exports.checkExists = (column, row) => `SELECT * FROM ${column} WHERE ${row} = $1;`;
 
 exports.selectBookings = `SELECT booking_id, check_in_date, check_out_date, created_at 
-FROM bookings WHERE property_id = $1 
+FROM bookings WHERE property_id = (CAST($1 AS INT))
 ORDER BY check_out_date DESC;`;
 
-exports.addBooking = `INSERT INTO bookings (check_in_date, check_out_date, guest_id, property_id) VALUES ($1, $2, $3, $4) RETURNING booking_id;`;
+exports.addBooking = `INSERT INTO bookings (check_in_date, check_out_date, guest_id, property_id) VALUES ($1, $2, (CAST($3 AS INT)), (CAST($4 AS INT))) RETURNING booking_id;`;
 
 exports.amendBooking = `UPDATE bookings 
 SET check_in_date = COALESCE($1, check_in_date), 
 check_out_date = COALESCE($2, check_out_date) 
-WHERE booking_id = $3 RETURNING *;`;
+WHERE booking_id = (CAST($3 AS INT)) RETURNING *;`;
 
-exports.deleteBooking = "DELETE FROM bookings WHERE booking_id = $1;";
+exports.deleteBooking = "DELETE FROM bookings WHERE booking_id = (CAST($1 AS INT));";
 
 exports.selectUserBookings = `SELECT b.booking_id, b.check_in_date, b.check_out_date, b.property_id, p.name AS property_name, CONCAT(u.first_name, ' ', u.surname) AS host,
     (SELECT image_url FROM images 
@@ -120,5 +120,5 @@ exports.selectUserBookings = `SELECT b.booking_id, b.check_in_date, b.check_out_
 FROM bookings b
 LEFT JOIN properties p ON p.property_id = b.property_id
 LEFT JOIN users u ON u.user_id = p.host_id
-WHERE guest_id = $1
+WHERE guest_id = (CAST($1 AS INT))
 ORDER BY b.check_in_date ASC;`;
