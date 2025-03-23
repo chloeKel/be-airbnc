@@ -34,8 +34,8 @@ exports.postFavourite = async (req, res, next) => {
 exports.deleteFavourite = async (req, res, next) => {
   try {
     const { id: favourite_id } = req.params;
-    await removeFavourite(Number(favourite_id));
-    res.status(204).send();
+    const response = await removeFavourite(Number(favourite_id));
+    res.status(200).send(response);
   } catch (error) {
     next(error);
   }

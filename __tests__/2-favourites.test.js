@@ -60,6 +60,7 @@ describe("POST /api/properties/:id/favourite happy path", () => {
     const { body } = await request(app).post("/api/properties/1/favourite").send(mockPayload);
     expect(body).toContainKeys(["msg", "favourite_id"]);
     expect(body.msg).toBe("Property favourited successfully");
+    expect(body.favourite_id).toBeNumber();
   });
 });
 
@@ -86,7 +87,7 @@ describe("POST /api/properties/:id/favourite sad path", () => {
 describe("DELETE /api/favourites/:id happy path", () => {
   test("successful delete should respond with a server status of 204", async () => {
     const { status } = await request(app).delete("/api/favourites/1");
-    expect(status).toBe(204);
+    expect(status).toBe(200);
   });
 
   test("should remove row of the favourite_id passed", async () => {
@@ -95,6 +96,11 @@ describe("DELETE /api/favourites/:id happy path", () => {
     await request(app).delete("/api/favourites/1");
     const afterDelete = await db.query("SELECT * FROM favourites WHERE favourite_id = 1");
     expect(afterDelete.rows).toBeArrayOfSize(0);
+  });
+
+  test("successful delete should respond with a msg of Favourite deleted successfully and favourite id", async () => {
+    const { body } = await request(app).delete("/api/favourites/1");
+    expect(body).toEqual({ msg: "Favourite deleted successfully", favourite_id: 1 });
   });
 });
 

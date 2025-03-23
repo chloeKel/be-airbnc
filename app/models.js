@@ -105,7 +105,8 @@ exports.insertFavourite = async (guest_id, property_id) => {
 };
 
 exports.removeFavourite = async (favourite_id) => {
-  await db.query(deleteFavourite, [favourite_id]);
+  const { rowCount } = await db.query(deleteFavourite, [favourite_id]);
+  if (rowCount > 0) return { msg: "Favourite deleted successfully", favourite_id };
 };
 
 exports.fetchReviews = async (property_id) => {
