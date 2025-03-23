@@ -98,9 +98,9 @@ describe("DELETE /api/favourites/:id happy path", () => {
     expect(afterDelete.rows).toBeArrayOfSize(0);
   });
 
-  test("successful delete should respond with a msg of Favourite deleted successfully and favourite id", async () => {
+  test("successful delete should respond with a msg of Favourite deleted successfully", async () => {
     const { body } = await request(app).delete("/api/favourites/1");
-    expect(body).toEqual({ msg: "Favourite deleted successfully", favourite_id: 1 });
+    expect(body).toEqual({ msg: "Favourite deleted successfully" });
   });
 });
 
