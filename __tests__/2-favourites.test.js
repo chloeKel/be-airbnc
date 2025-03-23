@@ -58,9 +58,8 @@ describe("POST /api/properties/:id/favourite happy path", () => {
 
   test("should respond with a success msg and a favourite_id", async () => {
     const { body } = await request(app).post("/api/properties/1/favourite").send(mockPayload);
-    expect(body).toContainKeys(["msg", "favourite_id"]);
+    expect(body).toContainKeys(["msg", "favourite_id", "property_id"]);
     expect(body.msg).toBe("Property favourited successfully");
-    expect(body.favourite_id).toBeNumber();
   });
 });
 

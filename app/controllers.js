@@ -25,7 +25,7 @@ exports.postFavourite = async (req, res, next) => {
     const { id: property_id } = req.params;
     const { guest_id } = req.body;
     const favourite = await insertFavourite(Number(guest_id), Number(property_id));
-    res.status(201).send({ msg: "Property favourited successfully", favourite_id: favourite.favourite_id });
+    res.status(201).send({ msg: "Property favourited successfully", favourite_id: favourite.favourite_id, property_id });
   } catch (error) {
     next(error);
   }
