@@ -6,14 +6,7 @@ const { handlePathNotFound, handleMethodNotAllowed, handleBadRequests } = requir
 
 app.use(express.json());
 
-app.use(
-  cors({
-    origin: "https://airbnc-k7rs.onrender.com",
-    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.route("/api/properties").get(getProperties).all(handleMethodNotAllowed);
 
