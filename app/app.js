@@ -6,7 +6,14 @@ const { handlePathNotFound, handleMethodNotAllowed, handleBadRequests } = requir
 
 app.use(express.json());
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: false,
+  })
+);
 
 app.route("/api/properties").get(getProperties).all(handleMethodNotAllowed);
 
