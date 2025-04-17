@@ -82,7 +82,7 @@ GROUP BY property_id;`;
 
 exports.addReview = `INSERT INTO reviews (
 rating, comment, guest_id, property_id) 
-VALUES ((CAST($1 AS INT)), $2, (CAST($3 AS INT)), (CAST($4 AS INT))) RETURNING *;`;
+VALUES ((CAST($1 AS DECIMAL)), $2, (CAST($3 AS INT)), (CAST($4 AS INT))) RETURNING *;`;
 
 exports.deleteReview = "DELETE FROM reviews WHERE review_id = $1;";
 

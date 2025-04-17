@@ -41,7 +41,7 @@ const create = {
      review_id SERIAL PRIMARY KEY,
      property_id INT NOT NULL REFERENCES properties(property_id),
      guest_id INT NOT NULL REFERENCES users(user_id),
-     rating DECIMAL(2,1) NOT NULL CHECK (rating >= 1 AND rating <= 5),
+     rating DECIMAL(3,2) NOT NULL,
      comment TEXT,
      created_at TIMESTAMP default CURRENT_TIMESTAMP
    );`,

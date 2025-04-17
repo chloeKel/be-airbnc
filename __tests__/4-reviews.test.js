@@ -6,7 +6,7 @@ const { seed } = require("../db/seed");
 beforeEach(async () => {
   mockPayload = {
     guest_id: 1,
-    rating: 5,
+    rating: 4,
     comment: "test comment",
   };
 
