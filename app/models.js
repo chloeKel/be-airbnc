@@ -18,6 +18,7 @@ const {
   selectAvgRating,
   selectImages,
   selectHost,
+  selectSingleReview,
 } = require("./query-strings");
 
 exports.fetchProperties = async (guest_id, host_id, minprice, maxprice, sort, order) => {
@@ -134,6 +135,11 @@ exports.insertReview = async (rating, comment, guest_id, property_id) => {
 
 exports.removeReview = async (review_id) => {
   await db.query(deleteReview, [review_id]);
+};
+
+exports.fetchSingleReview = async (property_id, guest_id) => {
+  const { rows } = await db.query(selectSingleReview, [property_id, guest_id]);
+  return rows[0];
 };
 
 exports.fetchUser = async (user_id) => {

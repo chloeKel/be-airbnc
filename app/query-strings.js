@@ -122,3 +122,7 @@ LEFT JOIN properties p ON p.property_id = b.property_id
 LEFT JOIN users u ON u.user_id = p.host_id
 WHERE guest_id = (CAST($1 AS INT))
 ORDER BY b.check_in_date ASC;`;
+
+exports.selectSingleReview = `SELECT rating, comment
+FROM reviews
+WHERE property_id = $1 AND guest_id = $2;`;

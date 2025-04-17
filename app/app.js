@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const { getProperties, postFavourite, deleteFavourite, getSingleProperty, getReviews, postReview, deleteReview, getUser, patchUser, getBookings, postBooking, patchBooking, deleteBooking, getUserBookings, getFavourites } = require("./controllers");
+const { getProperties, postFavourite, deleteFavourite, getSingleProperty, getReviews, postReview, deleteReview, getUser, patchUser, getBookings, postBooking, patchBooking, deleteBooking, getUserBookings, getFavourites, getSingleReview } = require("./controllers");
 const { handlePathNotFound, handleMethodNotAllowed, handleBadRequests } = require("./errors");
 
 app.use(express.json());
@@ -36,6 +36,8 @@ app.route("/api/properties/:id/booking").post(postBooking).all(handleMethodNotAl
 app.route("/api/bookings/:id").patch(patchBooking).delete(deleteBooking).all(handleMethodNotAllowed);
 
 app.route("/api/users/:id/bookings").get(getUserBookings).all(handleMethodNotAllowed);
+
+app.route("/api/properties/:id/review").get(getSingleReview).all(handleMethodNotAllowed);
 
 app.all("/*", handlePathNotFound);
 app.use(handleBadRequests);

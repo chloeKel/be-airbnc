@@ -81,6 +81,19 @@ describe("GET /api/properties/:id/reviews sad path", () => {
   });
 });
 
+describe("GET /api/properties/:id/review?guest_id=<guest_id>", () => {
+  test("successful get should respond with a sever status of 200", async () => {
+    const { status } = await request(app).get("/api/properties/1/review?guest_id=2");
+    expect(status).toBe(200);
+  });
+
+  test("successful get should respond with an object with the key of review and key of average_rating", async () => {
+    const { body } = await request(app).get("/api/properties/1/review?guest_id=2");
+    expect(body).toBeObject();
+    expect(body).toContainKeys(["rating", "comment"]);
+  });
+});
+
 describe("POST /api/properties/:id/reviews happy path", () => {
   test("successful post should respond with a server status of 201", async () => {
     const { status } = await request(app).post("/api/properties/1/reviews").send(mockPayload);
