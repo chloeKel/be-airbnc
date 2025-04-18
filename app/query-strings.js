@@ -68,7 +68,7 @@ exports.addFavourite = `INSERT INTO favourites (guest_id, property_id) VALUES ((
 
 exports.deleteFavourite = "DELETE FROM favourites WHERE favourite_id = (CAST($1 AS INT));";
 
-exports.selectReviews = `SELECT r.review_id, r.comment, r.rating, r.created_at, 
+exports.selectReviews = `SELECT r.review_id, r.comment, r.rating, r.created_at, r.guest_id, r.property_id,
 CONCAT(u.first_name, ' ', u.surname) AS guest, u.avatar AS guest_avatar
 FROM reviews r
 LEFT JOIN users u on u.user_id = r.guest_id

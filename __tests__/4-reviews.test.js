@@ -38,7 +38,7 @@ describe("GET /api/properties/:id/reviews happy path", () => {
     expect(body.reviews).toBeArray();
     body.reviews.forEach((review) => {
       expect(review).toBeObject();
-      expect(review).toContainKeys(["review_id", "comment", "rating", "created_at"]);
+      expect(review).toContainKeys(["review_id", "comment", "rating", "created_at", "guest_id", "property_id"]);
     });
   });
 
